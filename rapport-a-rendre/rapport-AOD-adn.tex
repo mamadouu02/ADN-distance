@@ -1,0 +1,284 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[latin1]{inputenc}
+%\usepackage[T1]{fontenc}
+\usepackage{enumerate}
+
+%%%% POUR FAIRE TENIR SUR UNE PAGE RECTO-VERSO.....
+\textwidth 18.5cm
+\oddsidemargin -1.75cm
+\evensidemargin -1.75cm
+\textheight 28.0cm
+\topmargin -3.0cm
+
+%   \textwidth 18cm
+   %\oddsidemargin -1.5cm
+   %\evensidemargin -1.5cm
+   %\textheight 26.0cm
+   %\topmargin -2.0cm
+ 
+
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\noindent\centerline{\bf\large Questionnaire  TP AOD 2023-2024 à compléter et rendre sur teide  } \\
+Binôme 
+(NOM\textsubscript{1} Prénom\textsubscript{1} --
+ NOM\textsubscript{2} Prénom\textsubscript{2})
+\,: \dotfill
+
+\section{Préambule 1 point}.
+Le programme récursif avec mémoisation fourni alloue une mémoire de taille $N.M$.
+Il génère une erreur d'exécution sur le test 5 (c-dessous) . Pourquoi ? \\
+Réponse:  A COMPLETER 
+\begin{verbatim}
+distanceEdition-recmemo    GCA_024498555.1_ASM2449855v1_genomic.fna 77328790 20236404   \
+                           GCF_000001735.4_TAIR10.1_genomic.fna 30808129 19944517 
+\end{verbatim}
+
+%%%%%%%%%%%%%%%%%%%
+{\noindent\bf{Important}.} Dans toute la suite, on demande des programmes qui allouent un espace mémoire $O(N+M)$.
+
+\section{Programme itératif en espace mémoire $O(N+M)$ (5 points)}
+{\em Expliquer très brièvement (2 à 5 lignes max) le principe de votre code, la mémoire utilisée, le sens de parcours des tableaux.}
+\vspace*{1.0cm}
+
+Analyse du coût théorique de ce  programme en fonction de $N$ et $M$  en notation $\Theta(...)$ 
+\begin{enumerate}
+  \item place mémoire allouée (ne pas compter les 2 séquences $X$ et $Y$ en mémoire via {\tt mmap}) : 
+  \item travail (nombre d'opérations) : 
+  \item nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$):
+  \item nombre de défauts de cache si $Z \ll \min(N,M)$ : 
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%
+\section{Programme cache aware  (3 points)}
+{\em Expliquer très brièvement (2 à 5 lignes max) le principe de votre code, la mémoire utilisée, le sens de parcours des tableaux.}
+\vspace*{1.0cm}
+
+Analyse du coût théorique de ce  programme en fonction de $N$ et $M$  en notation $\Theta(...)$ )
+\begin{enumerate}
+  \item place mémoire (ne pas compter les 2 séquences initiales $X$ et $Y$ en mémoire via {\tt mmap}) : 
+  \item travail (nombre d'opérations) : 
+  \item nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$):
+  \item nombre de défauts de cache si $Z \ll \min(N,M)$ : 
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%
+\section{Programme cache oblivious  (3 points)}
+{\em Expliquer très brièvement (2 à 5 lignes max) le principe de votre code, la mémoire utilisée, le sens de parcours des tableaux.}
+\vspace*{1.0cm}
+
+Analyse du coût théorique de ce  programme en fonction de $N$ et $M$  en notation $\Theta(...)$ )
+\begin{enumerate}
+  \item place mémoire (ne pas compter les 2 séquences initiales $X$ et $Y$ en mémoire via {\tt mmap}) : 
+  \item travail (nombre d'opérations) : 
+  \item nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$):
+  \item nombre de défauts de cache si $Z \ll \min(N,M)$ : 
+\end{enumerate}
+
+\section{Réglage du seuil d'arrêt récursif du programme cache oblivious  (1 point)} 
+Comment faites-vous sur une machine donnée pour choisir ce seuil d'arrêt? Quelle valeur avez vous choisi pour les
+PC de l'Ensimag? (2 à 3 lignes) 
+
+%%%%%%%%%%%%%%%%%%%
+\section{Expérimentation (7 points)}
+
+Description de la machine d'expérimentation:  \\
+Processeur: A PRECISER  --
+Mémoire: A PRECISER --
+Système: A PRECISER 
+
+\subsection{(3 points) Avec {\tt 
+	valgrind --tool =cachegrind --D1=4096,4,64
+}} 
+\begin{verbatim}
+     distanceEdition ba52_recent_omicron.fasta 153 N wuhan_hu_1.fasta 116 M 
+\end{verbatim}
+en prenant pour $N$ et $M$ les valeurs dans le tableau ci-dessous.
+
+
+Les paramètres du cache LL de second niveau est : ...
+{\em mettre ici les paramètres: soit ceux indiqués ligne 3
+du fichier cachegrind.out.(pid) généré par valgrind: soit ceux par défaut,
+soit ceux que vous avez spécifiés à la main
+\footnote{par exemple:
+{\tt valgrind --tool=cachegrind --D1=4096,4,64 --LL=65536,16,256  ... }
+mais ce n'est pas demandé car cela allonge le temps de simulation. } 
+ pour LL. }
+
+{\em Le tableau ci-dessous est un exemple,  complété avec vos résultats et 
+ensuite analysé.}
+\\
+{\footnotesize
+\begin{tabular}{|r|r||r|r|r||r|r|r||r|r|r||r|r|r||}
+\hline
+ \multicolumn{2}{|c||}{ } 
+& \multicolumn{3}{c||}{récursif mémo}
+& \multicolumn{3}{c||}{itératif}
+& \multicolumn{3}{c||}{cache aware}
+& \multicolumn{3}{c||}{cache oblivious}
+\\ \hline
+N & M 
+& \#Irefs & \#Drefs & \#D1miss % recursif memoisation
+& \#Irefs & \#Drefs & \#D1miss % itératif
+& \#Irefs & \#Drefs & \#D1miss % cache aware
+& \#Irefs & \#Drefs & \#D1miss % cache oblivious
+\\ \hline
+\hline
+1000 & 1000 
+&  &  &   % recursif memoisation
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+1000 & 1000 
+&  &  &   % recursif memoisation
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+2000 & 1000 
+&  &  &   % recursif memoisation
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+4000 & 1000 
+&  &  &   % recursif memoisation
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+2000 & 2000 
+&  &  &   % recursif memoisation
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+4000 & 4000 
+&  &  &   % recursif memoisation
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+6000 & 6000 
+&  &  &   % recursif memoisation
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+8000 & 8000 
+&  &  &   % recursif memoisation
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+\hline
+\end{tabular}
+}
+
+\paragraph{Important: analyse expérimentale:} 
+ces mesures expérimentales sont elles en accord avec les coûts analysés théroiquement (justifier)  ? 
+Quel algorithme se comporte le mieux avec valgrind et 
+les paramètres proposés, pourquoi ?
+
+
+\subsection{(3 points) Sans valgrind, par exécution de la commande :}
+{\tt \begin{tabular}{llll}
+distanceEdition & GCA\_024498555.1\_ASM2449855v1\_genomic.fna & 77328790 & M \\
+                & GCF\_000001735.4\_TAIR10.1\_genomic.fna     & 30808129 & N
+\end{tabular}}
+
+On mesure le temps écoulé, le temps CPU et l'énergie consommée avec : {\em  [présicer ici comment vous avez fait la mesure:
+{\tt time} 
+ou {\tt /usr/bin/time}
+ou {\tt getimeofday}
+ou {\tt getrusage}
+% ou {\tt perfstart/perfstop\_and\_display}%
+% \footnote{
+%     cf {\tt /matieres/4MMAOD6/2023-10-TP-AOD-ADN-Docs-fournis/tp-ADN-distance/srcperf/0-LisezMoi}
+% }
+ou... \\
+L'énergie consommée sur le processeur peut être estimée en regardant le compteur RAPL d'énergie (en microJoule)
+pour chaque core avant et après l'exécution et en faisant la différence.
+Le compteur du core $K$ est dans le fichier 
+\verb+ /sys/class/powercap/intel-rapl/intel-rapl:K/energy_uj + .\\
+Par exemple, pour le c{\oe}ur 0: 
+\verb+ /sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj +
+% Les fonctions fournies 
+% {\tt perfstart/perfstop\_and\_display} dans le répertoire
+% {\tt /matieres/4MMAOD6/2022-10-TP-AOD-ADN-Docs-fournis/tp-ADN-distance/srcperf} 
+% font ces mesures de temps cpu, ecoulé et énergie.
+% }
+
+Nota bene: pour avoir un résultat fiable/reproductible (si variailité), 
+il est préférable de faire chaque mesure 5 fois et de reporter l'intervalle
+de confiance [min, moyenne, max]. 
+
+\begin{tabular}{|r|r||r|r|r||r|r|r||r|r|r||}
+\hline
+ \multicolumn{2}{|c||}{ } 
+& \multicolumn{3}{c||}{itératif}
+& \multicolumn{3}{c||}{cache aware}
+& \multicolumn{3}{c||}{cache oblivious}
+\\ \hline
+N & M 
+& temps   & temps & energie       % itératif
+& temps   & temps & energie       % cache aware
+& temps   & temps & energie       % cache oblivious
+\\
+& 
+& cpu     & écoulé&               % itératif
+& cpu     & écoulé&               % cache aware
+& cpu     & écoulé&               % cache oblivious
+\\ \hline
+\hline
+10000 & 10000 
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+20000 & 20000 
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+30000 & 30000 
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+40000 & 40000 
+&  &  &   % itératif
+&  &  &   % cache aware
+&  &  &   % cache oblivious
+\\ \hline
+\hline
+\end{tabular}
+\paragraph{Important: analyse expérimentale:} 
+ces mesures expérimentales sont elles en accord avec les coûts analysés théroiquement (justifier)  ? 
+Quel algorithme se comporte le mieux avec valgrind et 
+les paramètres proposés, pourquoi ?
+
+\subsection{(1 point) Extrapolation: estimation de la durée et de l'énergie pour la commande :}
+{\tt \begin{tabular}{llll}
+distanceEdition & GCA\_024498555.1\_ASM2449855v1\_genomic.fna & 77328790 & 20236404  \\
+                & GCF\_000001735.4\_TAIR10.1\_genomic.fna     & 30808129 & 19944517 
+\end{tabular}
+}
+
+A partir des résultats précédents, le programme {\em préciser itératif/cache aware/ cache oblivious} est
+le plus performant pour la commande ci dessus (test 5); les ressources pour l'exécution seraient environ:
+{\em (préciser la méthode de calcul utilisée)} 
+\begin{itemize}
+\item Temps cpu (en s) : ...
+\item Energie  (en kWh) : ... .
+\end{itemize}
+Question subsidiaire: comment feriez-vous pour avoir un programme s'exécutant en moins de 1 minute ? 
+{\em donner le principe en moins d'une ligne, même 1 mot précis suffit! }
+
+
+\end{document}
