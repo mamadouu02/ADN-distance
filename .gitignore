@@ -55,3 +55,4 @@ bin/*
 rapport-a-rendre/*.aux
 rapport-a-rendre/*.log
 rapport-a-rendre/*.pdf
+tests/cachegrind*
