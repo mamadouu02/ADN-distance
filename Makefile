@@ -11,7 +11,7 @@ SRCDIR=$(REFDIR)/src
 BINDIR=$(REFDIR)/bin
 DOCDIR=$(REFDIR)/doc
 TESTDIR=$(REFDIR)/tests
-REPORTDIR=$(REFDIR)/report
+REPORTDIR=$(REFDIR)/rapport-a-rendre
 
 LATEXSOURCE=$(wildcard $(REPORTDIR)/*.tex)
 CSOURCE=$(wildcard $(SRCDIR)/*.c)
@@ -41,7 +41,7 @@ $(BINDIR)/extract-fasta-sequences-size: $(SRCDIR)/extract-fasta-sequences-size.c
 	$(CC) $(OPT) -I$(SRCDIR) -o $(BINDIR)/extract-fasta-sequences-size $(SRCDIR)/extract-fasta-sequences-size.c
 
 clean:
-	rm -rf $(DOCDIR) $(BINDIR)/* $(REPORTDIR)/*.aux $(REPORTDIR)/*.log  $(REPORTDIR)/rapport.pdf 
+	rm -rf $(DOCDIR) $(BINDIR)/* $(REPORTDIR)/*.aux $(REPORTDIR)/*.log  $(PDF) 
 
 #$(BINDIR)/distanceEdition: $(CSOURCE)
 #	$(CC) $(CFLAGS)  $^ -o $@ 
@@ -60,7 +60,7 @@ test: $(BINDIR)/distanceEdition $(TESTDIR)/Makefile-test
 	cd $(TESTDIR) ; make -f Makefile-test all 
 	
 test-valgrind: $(BINDIR)/distanceEdition $(TESTDIR)/Makefile-test
-	make -f $(TESTDIR)/Makefile-test all-valgrind
+	cd $(TESTDIR) ; make -f Makefile-test all-valgrind
 	
 .PHONY: all doc bin report 
 

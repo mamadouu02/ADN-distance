@@ -39,6 +39,15 @@ struct NW_MemoContext
     long **memo; /*!< memoization table to store memo[0..M][0..N] (including stopping conditions phi(M,j) and phi(i,N) */
 } ;
 
+struct NW_IterContext 
+{
+   char *X ; /*!< the longest genetic sequences */
+   char *Y ; /*!< the shortest genetic sequences */
+   size_t M; /*!< length of X */
+   size_t N; /*!< length of Y,  N <= M */
+   long *memo; /*!< memoization table to store memo[0..N] (including stopping conditions phi(i,N) */
+};
+
 /*
  *  static long EditDistance_NW_RecMemo(struct NW_MemoContext *c, size_t i, size_t j) 
  * \brief  EditDistance_NW_RecMemo :  Private (static)  recursive function with memoization \
@@ -137,3 +146,67 @@ long EditDistance_NW_Rec(char* A, size_t lengthA, char* B, size_t lengthB)
    return res ;
 }
 
+long EditDistance_NW_Iter(char* A, size_t lengthA, char* B, size_t lengthB)
+{
+   _init_base_match();
+   struct NW_IterContext ctx;
+
+   if (lengthA >= lengthB) {
+      ctx.X = A;
+      ctx.M = lengthA;
+      ctx.Y = B;
+      ctx.N = lengthB;
+   } else {
+      ctx.X = B;
+      ctx.M = lengthB;
+      ctx.Y = A;
+      ctx.N = lengthA;
+   }
+
+   size_t M = ctx.M;
+   size_t N = ctx.N;
+
+   ctx.memo = malloc(sizeof(long[N+1]));
+
+   if (ctx.memo == NULL) {
+      perror("EditDistance_NW_Iter: malloc of ctx.memo");
+      exit(EXIT_FAILURE);
+   }
+
+   ctx.memo[N] = 0;
+
+   for (int j = N-1; j >= 0; --j) {
+      ctx.memo[j] = (isBase(ctx.Y[j]) ? INSERTION_COST : 0) + ctx.memo[j+1];
+   }
+
+   long tmp;
+
+   for (int i = M-1; i >= 0; --i) {
+      tmp = ctx.memo[N];
+      ctx.memo[N] = (isBase(ctx.X[i]) ? INSERTION_COST : 0) + tmp;
+
+      for (int j = N-1; j >= 0; --j) {
+         if (!isBase(ctx.X[i])) {
+            ManageBaseError(ctx.X[i]);
+            tmp = ctx.memo[j];
+         } else if (!isBase(ctx.Y[j])) {
+            ManageBaseError(ctx.Y[j]);
+            tmp = ctx.memo[j];
+            ctx.memo[j] = ctx.memo[j+1];
+         } else {
+            long min = (isUnknownBase(ctx.X[i]) ? SUBSTITUTION_UNKNOWN_COST : (isSameBase(ctx.X[i], ctx.Y[j]) ? 0 : SUBSTITUTION_COST)) + tmp;
+            long cas2 = INSERTION_COST + ctx.memo[j];
+            min = (cas2 < min) ? cas2 : min;
+            long cas3 = INSERTION_COST + ctx.memo[j+1];
+            min = (cas3 < min) ? cas3 : min;
+            tmp = ctx.memo[j];
+            ctx.memo[j] = min;
+         }
+      }
+   }
+
+   long res = ctx.memo[0];
+   free(ctx.memo);
+
+   return res;
+}
