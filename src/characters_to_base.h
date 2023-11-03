@@ -91,6 +91,12 @@ static void  _init_base_match() /* initialisation of _base_match array for corre
  */
 #define isSameBase(a,b)	( _base_match[a] == _base_match[b] )
 
+/**
+ * \def sigma(a,b)
+ * \brief returns 1 iff char a matches an unknown base or chars a and b are mapped to two different bases 
+ */
+#define sigma(a, b) (isUnknownBase(a) ? SUBSTITUTION_UNKNOWN_COST : (isSameBase(a, b) ? 0 : SUBSTITUTION_COST))
+
 /** \enum BASE_ERROR_TREATMENT_MODE
  * \brief  BASE_ERROR_TREATMENT defines way a char not in AaCcGgTtUuNn is processed; either IGNORED (default), or WARNING (prints a message on stderr), or EROOR (stops execution). 
  */

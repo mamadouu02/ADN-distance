@@ -39,7 +39,7 @@ struct NW_MemoContext
     long **memo; /*!< memoization table to store memo[0..M][0..N] (including stopping conditions phi(M,j) and phi(i,N) */
 } ;
 
-struct NW_IterContext 
+struct NW_MemoContextIter 
 {
    char *X ; /*!< the longest genetic sequences */
    char *Y ; /*!< the shortest genetic sequences */
@@ -149,7 +149,7 @@ long EditDistance_NW_Rec(char* A, size_t lengthA, char* B, size_t lengthB)
 long EditDistance_NW_Iter(char* A, size_t lengthA, char* B, size_t lengthB)
 {
    _init_base_match();
-   struct NW_IterContext ctx;
+   struct NW_MemoContextIter ctx;
 
    if (lengthA >= lengthB) {
       ctx.X = A;
@@ -194,13 +194,11 @@ long EditDistance_NW_Iter(char* A, size_t lengthA, char* B, size_t lengthB)
             tmp = ctx.memo[j];
             ctx.memo[j] = ctx.memo[j+1];
          } else {
-            long min = (isUnknownBase(ctx.X[i]) ? SUBSTITUTION_UNKNOWN_COST : (isSameBase(ctx.X[i], ctx.Y[j]) ? 0 : SUBSTITUTION_COST)) + tmp;
-            long cas2 = INSERTION_COST + ctx.memo[j];
-            min = (cas2 < min) ? cas2 : min;
-            long cas3 = INSERTION_COST + ctx.memo[j+1];
-            min = (cas3 < min) ? cas3 : min;
+            long cost1 = sigma(ctx.X[i], ctx.Y[j]) + tmp;
+            long cost2 = INSERTION_COST + ctx.memo[j];
+            long cost3 = INSERTION_COST + ctx.memo[j+1];
             tmp = ctx.memo[j];
-            ctx.memo[j] = min;
+            ctx.memo[j] = MIN(cost1, cost2, cost3);
          }
       }
    }

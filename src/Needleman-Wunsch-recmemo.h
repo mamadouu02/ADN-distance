@@ -28,6 +28,8 @@
  */
 #define INSERTION_COST		2
 
+#define MIN(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
+
 /********************************************************************************
  * Recursive implementation of NeedlemanWunsch with memoization
  */
