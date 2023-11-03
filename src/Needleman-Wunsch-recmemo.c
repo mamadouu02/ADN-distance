@@ -74,7 +74,7 @@ static long EditDistance_NW_RecMemo(struct NW_MemoContext *c, size_t i, size_t j
       else if (! isBase(Xi))  /* skip ccharacter in Xi that is not a base */
       {  ManageBaseError( Xi ) ;
          res = EditDistance_NW_RecMemo(c, i+1, j) ;
-      }
+      } 
       else if (! isBase(Yj))  /* skip ccharacter in Yj that is not a base */
       {  ManageBaseError( Yj ) ;
          res = EditDistance_NW_RecMemo(c, i, j+1) ;
@@ -197,8 +197,81 @@ long EditDistance_NW_Iter(char* A, size_t lengthA, char* B, size_t lengthB)
             long cost1 = sigma(ctx.X[i], ctx.Y[j]) + tmp;
             long cost2 = INSERTION_COST + ctx.memo[j];
             long cost3 = INSERTION_COST + ctx.memo[j+1];
-            tmp = ctx.memo[j];
+                        tmp = ctx.memo[j];
             ctx.memo[j] = MIN(cost1, cost2, cost3);
+         }
+      }
+   }
+
+   long res = ctx.memo[0];
+   free(ctx.memo);
+
+   return res;
+}
+
+
+
+long EditDistance_NW_CA(char* A, size_t lengthA, char* B, size_t lengthB,int Z)
+{
+   _init_base_match();
+   struct NW_IterContext ctx;
+
+   if (lengthA >= lengthB) {
+      ctx.X = A;
+      ctx.M = lengthA;
+      ctx.Y = B;
+      ctx.N = lengthB;
+   } else {
+      ctx.X = B;
+      ctx.M = lengthB;
+      ctx.Y = A;
+      ctx.N = lengthA;
+   }
+
+   size_t M = ctx.M;
+   size_t N = ctx.N;
+
+   ctx.memo = malloc(sizeof(long[N+1]));
+
+   if (ctx.memo == NULL) {
+      perror("EditDistance_NW_Iter: malloc of ctx.memo");
+      exit(EXIT_FAILURE);
+   }
+
+   ctx.memo[N] = 0;
+   
+   for (int j = N-1; j >= 0; --j) {
+      ctx.memo[j] = (isBase(ctx.Y[j]) ? INSERTION_COST : 0) + ctx.memo[j+1];
+   }
+
+   long tmp;
+   uint K = Z/64;
+   for (int I=M-1; I>=0; I-=K)
+   {  int i_end = ( 0 >= I - K ) ? N : I - K ;
+      for ( int J =N; J >=0 ; J -= K ){
+         int j_end = ( 0 >= J + K_c ) ? 0 : J - K ;
+         for (int i = I; i >= i_end; --i) {
+         tmp = ctx.memo[N];
+         ctx.memo[N] = (isBase(ctx.X[i]) ? INSERTION_COST : 0) + tmp;
+
+            for (int j = J; j >= j_end; --j) {
+               if (!isBase(ctx.X[i])) {
+                  ManageBaseError(ctx.X[i]);
+                  tmp = ctx.memo[j];
+               } else if (!isBase(ctx.Y[j])) {
+                  ManageBaseError(ctx.Y[j]);
+                  tmp = ctx.memo[j];
+                  ctx.memo[j] = ctx.memo[j+1];
+               } else {
+                  long min = (isUnknownBase(ctx.X[i]) ? SUBSTITUTION_UNKNOWN_COST : (isSameBase(ctx.X[i], ctx.Y[j]) ? 0 : SUBSTITUTION_COST)) + tmp;
+                  long cas2 = INSERTION_COST + ctx.memo[j];
+                  min = (cas2 < min) ? cas2 : min;
+                  long cas3 = INSERTION_COST + ctx.memo[j+1];
+                  min = (cas3 < min) ? cas3 : min;
+                  tmp = ctx.memo[j];
+                  ctx.memo[j] = min;
+               }
+            }
          }
       }
    }
