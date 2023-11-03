@@ -41,11 +41,11 @@ struct NW_MemoContext
 
 struct NW_MemoContextIter 
 {
-   char *X ; /*!< the longest genetic sequences */
-   char *Y ; /*!< the shortest genetic sequences */
-   size_t M; /*!< length of X */
-   size_t N; /*!< length of Y,  N <= M */
-   long *memo; /*!< memoization table to store memo[0..N] (including stopping conditions phi(i,N) */
+    char *X ; /*!< the longest genetic sequences */
+    char *Y ; /*!< the shortest genetic sequences */
+    size_t M; /*!< length of X */
+    size_t N; /*!< length of Y,  N <= M */
+    long *memo; /*!< memoization table to store memo[0..N] (including stopping conditions phi(i,N) */
 };
 
 /*
@@ -146,7 +146,7 @@ long EditDistance_NW_Rec(char* A, size_t lengthA, char* B, size_t lengthB)
    return res ;
 }
 
-long EditDistance_NW_Iter(char* A, size_t lengthA, char* B, size_t lengthB)
+long EditDistance_NW_Iter(char *A, size_t lengthA, char *B, size_t lengthB)
 {
    _init_base_match();
    struct NW_MemoContextIter ctx;
@@ -197,7 +197,7 @@ long EditDistance_NW_Iter(char* A, size_t lengthA, char* B, size_t lengthB)
             long cost1 = sigma(ctx.X[i], ctx.Y[j]) + tmp;
             long cost2 = INSERTION_COST + ctx.memo[j];
             long cost3 = INSERTION_COST + ctx.memo[j+1];
-                        tmp = ctx.memo[j];
+            tmp = ctx.memo[j];
             ctx.memo[j] = MIN(cost1, cost2, cost3);
          }
       }
@@ -209,12 +209,10 @@ long EditDistance_NW_Iter(char* A, size_t lengthA, char* B, size_t lengthB)
    return res;
 }
 
-
-
-long EditDistance_NW_CA(char* A, size_t lengthA, char* B, size_t lengthB,int Z)
+long EditDistance_NW_CA(char* A, size_t lengthA, char* B, size_t lengthB, int Z)
 {
    _init_base_match();
-   struct NW_IterContext ctx;
+   struct NW_MemoContextIter ctx;
 
    if (lengthA >= lengthB) {
       ctx.X = A;
@@ -245,11 +243,14 @@ long EditDistance_NW_CA(char* A, size_t lengthA, char* B, size_t lengthB,int Z)
    }
 
    long tmp;
-   uint K = Z/64;
-   for (int I=M-1; I>=0; I-=K)
-   {  int i_end = ( 0 >= I - K ) ? N : I - K ;
-      for ( int J =N; J >=0 ; J -= K ){
-         int j_end = ( 0 >= J + K_c ) ? 0 : J - K ;
+   int K = Z / 64;
+
+   for (int I = M-1; I >= 0; I -= K) {
+      int i_end = (0 >= I - K) ? 0 : I - K;
+
+      for (int J = N; J >= 0; J -= K) {
+         int j_end = (0 >= J + K) ? N-1 : J - K;
+
          for (int i = I; i >= i_end; --i) {
          tmp = ctx.memo[N];
          ctx.memo[N] = (isBase(ctx.X[i]) ? INSERTION_COST : 0) + tmp;
@@ -263,13 +264,11 @@ long EditDistance_NW_CA(char* A, size_t lengthA, char* B, size_t lengthB,int Z)
                   tmp = ctx.memo[j];
                   ctx.memo[j] = ctx.memo[j+1];
                } else {
-                  long min = (isUnknownBase(ctx.X[i]) ? SUBSTITUTION_UNKNOWN_COST : (isSameBase(ctx.X[i], ctx.Y[j]) ? 0 : SUBSTITUTION_COST)) + tmp;
-                  long cas2 = INSERTION_COST + ctx.memo[j];
-                  min = (cas2 < min) ? cas2 : min;
-                  long cas3 = INSERTION_COST + ctx.memo[j+1];
-                  min = (cas3 < min) ? cas3 : min;
+                  long cost1 = sigma(ctx.X[i], ctx.Y[j]) + tmp;
+                  long cost2 = INSERTION_COST + ctx.memo[j];
+                  long cost3 = INSERTION_COST + ctx.memo[j+1];
                   tmp = ctx.memo[j];
-                  ctx.memo[j] = min;
+                  ctx.memo[j] = MIN(cost1, cost2, cost3);
                }
             }
          }
