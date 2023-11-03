@@ -252,8 +252,8 @@ long EditDistance_NW_CA(char* A, size_t lengthA, char* B, size_t lengthB, int Z)
          int j_end = (0 >= J + K) ? N-1 : J - K;
 
          for (int i = I; i >= i_end; --i) {
-         tmp = ctx.memo[N];
-         ctx.memo[N] = (isBase(ctx.X[i]) ? INSERTION_COST : 0) + tmp;
+            tmp = ctx.memo[N];
+            ctx.memo[N] = (isBase(ctx.X[i]) ? INSERTION_COST : 0) + tmp;
 
             for (int j = J; j >= j_end; --j) {
                if (!isBase(ctx.X[i])) {
