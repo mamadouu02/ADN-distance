@@ -228,7 +228,7 @@ long EditDistance_NW_Iter(char *A, size_t lengthA, char *B, size_t lengthB)
    return res;
 }
 
-long EditDistance_NW_CA(char *A, size_t lengthA, char *B, size_t lengthB, int Z)
+ long EditDistance_NW_CA(char *A, size_t lengthA, char *B, size_t lengthB, int Z)
 {
    _init_base_match();
    struct NW_MemoContextIter ctx;
@@ -266,8 +266,8 @@ long EditDistance_NW_CA(char *A, size_t lengthA, char *B, size_t lengthB, int Z)
    for (int I = M-1; I >= 0; I -= K) {
       int i_end = (0 >= I - K) ? 0 : I - K;
 
-      for (int J = N; J >= 0; J -= K) {
-         int j_end = (0 >= J + K) ? N-1 : J - K;
+      for (int J = N-1; J >= 0; J -= K) {
+         int j_end = (0 >= J - K) ? 0: J - K;
 
          for (int i = I; i >= i_end; --i) {
             long tmp = ctx.memo[N];
