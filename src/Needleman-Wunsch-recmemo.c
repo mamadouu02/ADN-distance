@@ -27,19 +27,27 @@
  */
 #define NOT_YET_COMPUTED -1L 
 
+/** \def S
+ * \brief threshold for cache-oblivious Needleman-Wunsch algorithm.
+ */
+#define S 16
+
 /** \struct NW_MemoContext
  * \brief data for memoization of recursive Needleman-Wunsch algorithm 
 */
-struct NW_MemoContext 
+struct NW_MemoContext
 {
     char *X ; /*!< the longest genetic sequences */
     char *Y ; /*!< the shortest genetic sequences */
     size_t M; /*!< length of X */
     size_t N; /*!< length of Y,  N <= M */
     long **memo; /*!< memoization table to store memo[0..M][0..N] (including stopping conditions phi(M,j) and phi(i,N) */
-} ;
+};
 
-struct NW_MemoContextIter 
+/** \struct NW_MemoContextIter
+ * \brief data for memoization of iterative Needleman-Wunsch algorithm 
+*/
+struct NW_MemoContextIter
 {
     char *X ; /*!< the longest genetic sequences */
     char *Y ; /*!< the shortest genetic sequences */
@@ -48,7 +56,20 @@ struct NW_MemoContextIter
     long *memo; /*!< memoization table to store memo[0..N] (including stopping conditions phi(i,N) */
 };
 
-/*
+/** \struct NW_MemoContextCO
+ * \brief data for memoization of cache-oblivious Needleman-Wunsch algorithm 
+*/
+struct NW_MemoContextCO
+{
+    char *X ; /*!< the longest genetic sequences */
+    char *Y ; /*!< the shortest genetic sequences */
+    size_t M; /*!< length of X */
+    size_t N; /*!< length of Y,  N <= M */
+    long *rmemo; /*!< memoization table to store memo[0..N] (including stopping conditions phi(i,N) */
+    long *cmemo; /*!< memoization table to store memo[0..S] */
+};
+
+/**
  *  static long EditDistance_NW_RecMemo(struct NW_MemoContext *c, size_t i, size_t j) 
  * \brief  EditDistance_NW_RecMemo :  Private (static)  recursive function with memoization \
  * direct implementation of Needleman-Wursch extended to manage FASTA sequences (cf TP description)
@@ -179,10 +200,8 @@ long EditDistance_NW_Iter(char *A, size_t lengthA, char *B, size_t lengthB)
       ctx.memo[j] = (isBase(ctx.Y[j]) ? INSERTION_COST : 0) + ctx.memo[j+1];
    }
 
-   long tmp;
-
    for (int i = M-1; i >= 0; --i) {
-      tmp = ctx.memo[N];
+      long tmp = ctx.memo[N];
       ctx.memo[N] = (isBase(ctx.X[i]) ? INSERTION_COST : 0) + tmp;
 
       for (int j = N-1; j >= 0; --j) {
@@ -209,7 +228,7 @@ long EditDistance_NW_Iter(char *A, size_t lengthA, char *B, size_t lengthB)
    return res;
 }
 
-long EditDistance_NW_CA(char* A, size_t lengthA, char* B, size_t lengthB, int Z)
+long EditDistance_NW_CA(char *A, size_t lengthA, char *B, size_t lengthB, int Z)
 {
    _init_base_match();
    struct NW_MemoContextIter ctx;
@@ -232,7 +251,7 @@ long EditDistance_NW_CA(char* A, size_t lengthA, char* B, size_t lengthB, int Z)
    ctx.memo = malloc(sizeof(long[N+1]));
 
    if (ctx.memo == NULL) {
-      perror("EditDistance_NW_Iter: malloc of ctx.memo");
+      perror("EditDistance_NW_CA: malloc of ctx.memo");
       exit(EXIT_FAILURE);
    }
 
@@ -242,7 +261,6 @@ long EditDistance_NW_CA(char* A, size_t lengthA, char* B, size_t lengthB, int Z)
       ctx.memo[j] = (isBase(ctx.Y[j]) ? INSERTION_COST : 0) + ctx.memo[j+1];
    }
 
-   long tmp;
    int K = Z / 64;
 
    for (int I = M-1; I >= 0; I -= K) {
@@ -252,7 +270,7 @@ long EditDistance_NW_CA(char* A, size_t lengthA, char* B, size_t lengthB, int Z)
          int j_end = (0 >= J + K) ? N-1 : J - K;
 
          for (int i = I; i >= i_end; --i) {
-            tmp = ctx.memo[N];
+            long tmp = ctx.memo[N];
             ctx.memo[N] = (isBase(ctx.X[i]) ? INSERTION_COST : 0) + tmp;
 
             for (int j = J; j >= j_end; --j) {
@@ -277,6 +295,96 @@ long EditDistance_NW_CA(char* A, size_t lengthA, char* B, size_t lengthB, int Z)
 
    long res = ctx.memo[0];
    free(ctx.memo);
+
+   return res;
+}
+
+void blocking(struct NW_MemoContextCO *c, int i_start, int i_stop)
+{
+   if (i_start - i_stop < S) {
+      for (int i = i_start; i >= i_stop; --i) {
+         int k = i - i_stop;
+
+         if (i == c->M) {
+            c->cmemo[k] = 0;
+         } else {
+            c->cmemo[k] = (isBase(c->X[i]) ? INSERTION_COST : 0) + ((i == i_start) ? c->rmemo[c->N] : c->cmemo[k + 1]);
+         }
+      }
+
+      for (int j = c->N-1; j >= 0; --j) {
+         for (int i = i_start; i >= i_stop; --i) {
+            int k = i - i_stop;
+
+            if (i == c->M) {
+               c->rmemo[j+1] = c->cmemo[k];
+               c->cmemo[k] = (isBase(c->Y[j]) ? INSERTION_COST : 0) + c->cmemo[k + 1];
+            } else {
+               if (!isBase(c->X[i])) {
+                  ManageBaseError(c->X[i]);
+                  c->rmemo[j+1] = c->cmemo[k];
+                  c->cmemo[k] = ((i == i_start) ? c->rmemo[j] : c->cmemo[k + 1]);
+               } else if (!isBase(c->Y[j])) {
+                  ManageBaseError(c->Y[j]);
+                  c->rmemo[j+1] = c->cmemo[k];
+               } else {
+                  long cost1 = sigma(c->X[i], c->Y[j]) + c->rmemo[j+1];
+                  long cost2 = INSERTION_COST + ((i == i_start) ? c->rmemo[j] : c->cmemo[k + 1]);
+                  long cost3 = INSERTION_COST + c->cmemo[k];
+                  c->rmemo[j+1] = c->cmemo[k];
+                  c->cmemo[k] = MIN(cost1, cost2, cost3);
+               }
+            }
+         }
+      }
+
+      c->rmemo[0] = c->cmemo[0];
+   } else {
+      int i_mid = (i_start + i_stop) / 2;
+      blocking(c, i_start, i_mid + 1);
+      blocking(c, i_mid, i_stop);
+   }
+}
+
+long EditDistance_NW_CO(char *A, size_t lengthA, char *B, size_t lengthB)
+{
+   _init_base_match();
+   struct NW_MemoContextCO ctx;
+
+   if (lengthA >= lengthB) {
+      ctx.X = A;
+      ctx.M = lengthA;
+      ctx.Y = B;
+      ctx.N = lengthB;
+   } else {
+      ctx.X = B;
+      ctx.M = lengthB;
+      ctx.Y = A;
+      ctx.N = lengthA;
+   }
+
+   size_t M = ctx.M;
+   size_t N = ctx.N;
+
+   ctx.rmemo = malloc(sizeof(long[N+1]));
+
+   if (ctx.rmemo == NULL) {
+      perror("EditDistance_NW_Iter: malloc of ctx.rmemo");
+      exit(EXIT_FAILURE);
+   }
+
+   ctx.cmemo = malloc(sizeof(long[S]));
+
+   if (ctx.cmemo == NULL) {
+      perror("EditDistance_NW_Iter: malloc of ctx.cmemo");
+      exit(EXIT_FAILURE);
+   }
+
+   blocking(&ctx, M, 0);
+
+   long res = ctx.rmemo[0];
+   free(ctx.rmemo);
+   free(ctx.cmemo);
 
    return res;
 }

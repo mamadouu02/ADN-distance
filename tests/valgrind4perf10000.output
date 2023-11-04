@@ -1,28 +1,28 @@
-==135856== Cachegrind, a cache and branch-prediction profiler
-==135856== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.
-==135856== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
-==135856== Command: ../bin/distanceEdition ./ba52_recent_omicron.fasta 153 10000 ./wuhan_hu_1.fasta 116 10000
-==135856== 
---135856-- warning: L3 cache found, using its data for the LL simulation.
---135856-- warning: specified LL cache: line_size 64  assoc 16  total_size 12,582,912
---135856-- warning: simulated LL cache: line_size 64  assoc 24  total_size 12,582,912
+==55059== Cachegrind, a cache and branch-prediction profiler
+==55059== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.
+==55059== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==55059== Command: ../bin/distanceEdition ./ba52_recent_omicron.fasta 153 10000 ./wuhan_hu_1.fasta 116 10000
+==55059== 
+--55059-- warning: L3 cache found, using its data for the LL simulation.
+--55059-- warning: specified LL cache: line_size 64  assoc 16  total_size 12,582,912
+--55059-- warning: simulated LL cache: line_size 64  assoc 24  total_size 12,582,912
 CAGGTAACAAACCAACCAAC...TACCTCTTACGCAATATAAT
 ATTAAAGGTTTATACCTTCC...GTTGCGTAGTGATGTGCTAT
-==135856== 
-==135856== I   refs:      10,643,542,893
-==135856== I1  misses:             1,526
-==135856== LLi misses:             1,494
-==135856== I1  miss rate:           0.00%
-==135856== LLi miss rate:           0.00%
-==135856== 
-==135856== D   refs:       4,536,313,090  (3,843,214,101 rd   + 693,098,989 wr)
-==135856== D1  misses:        14,083,145  (   14,072,667 rd   +      10,478 wr)
-==135856== LLd misses:             3,582  (        1,706 rd   +       1,876 wr)
-==135856== D1  miss rate:            0.3% (          0.4%     +         0.0%  )
-==135856== LLd miss rate:            0.0% (          0.0%     +         0.0%  )
-==135856== 
-==135856== LL refs:           14,084,671  (   14,074,193 rd   +      10,478 wr)
-==135856== LL misses:              5,076  (        3,200 rd   +       1,876 wr)
-==135856== LL miss rate:             0.0% (          0.0%     +         0.0%  )
-28.20user 0.01system 0:28.23elapsed 99%CPU (0avgtext+0avgdata 39848maxresident)k
-0inputs+352outputs (0major+11180minor)pagefaults 0swaps
+==55059== 
+==55059== I   refs:      14,031,819,141
+==55059== I1  misses:             1,550
+==55059== LLi misses:             1,517
+==55059== I1  miss rate:           0.00%
+==55059== LLi miss rate:           0.00%
+==55059== 
+==55059== D   refs:       6,767,260,327  (6,258,336,539 rd   + 508,923,788 wr)
+==55059== D1  misses:         1,449,335  (    1,446,801 rd   +       2,534 wr)
+==55059== LLd misses:             3,586  (        1,710 rd   +       1,876 wr)
+==55059== D1  miss rate:            0.0% (          0.0%     +         0.0%  )
+==55059== LLd miss rate:            0.0% (          0.0%     +         0.0%  )
+==55059== 
+==55059== LL refs:            1,450,885  (    1,448,351 rd   +       2,534 wr)
+==55059== LL misses:              5,103  (        3,227 rd   +       1,876 wr)
+==55059== LL miss rate:             0.0% (          0.0%     +         0.0%  )
+36.86user 0.04system 0:36.92elapsed 99%CPU (0avgtext+0avgdata 40096maxresident)k
+0inputs+336outputs (0major+11219minor)pagefaults 0swaps
