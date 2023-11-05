@@ -16,6 +16,7 @@
 #include <stdlib.h> 
 #include <string.h> /* for strchr */
 // #include <ctype.h> /* for toupper */
+#include <math.h>
 
 #include "characters_to_base.h" /* mapping from char to base */
 
@@ -54,6 +55,19 @@ struct NW_MemoContextIter
     size_t M; /*!< length of X */
     size_t N; /*!< length of Y,  N <= M */
     long *memo; /*!< memoization table to store memo[0..N] (including stopping conditions phi(i,N) */
+};
+
+/** \struct NW_MemoContextCA
+ * \brief data for memoization of cache-aware Needleman-Wunsch algorithm 
+*/
+struct NW_MemoContextCA
+{
+    char *X ; /*!< the longest genetic sequences */
+    char *Y ; /*!< the shortest genetic sequences */
+    size_t M; /*!< length of X */
+    size_t N; /*!< length of Y,  N <= M */
+    long *rmemo; /*!< memoization table to store memo[0..N] (including stopping conditions phi(i,N) */
+    long *cmemo; /*!< memoization table to store memo[0..K] */
 };
 
 /** \struct NW_MemoContextCO
@@ -228,10 +242,10 @@ long EditDistance_NW_Iter(char *A, size_t lengthA, char *B, size_t lengthB)
    return res;
 }
 
- long EditDistance_NW_CA(char *A, size_t lengthA, char *B, size_t lengthB, int Z)
+long EditDistance_NW_CA(char *A, size_t lengthA, char *B, size_t lengthB, int Z)
 {
    _init_base_match();
-   struct NW_MemoContextIter ctx;
+   struct NW_MemoContextCA ctx;
 
    if (lengthA >= lengthB) {
       ctx.X = A;
@@ -247,68 +261,85 @@ long EditDistance_NW_Iter(char *A, size_t lengthA, char *B, size_t lengthB)
 
    size_t M = ctx.M;
    size_t N = ctx.N;
+   int K = (int)sqrt(Z);
 
-   ctx.memo = malloc(sizeof(long[N+1]));
+   ctx.rmemo = malloc(sizeof(long[N+1]));
 
-   if (ctx.memo == NULL) {
-      perror("EditDistance_NW_CA: malloc of ctx.memo");
+   if (ctx.rmemo == NULL) {
+      perror("EditDistance_NW_CA: malloc of ctx.rmemo");
       exit(EXIT_FAILURE);
    }
 
-   ctx.memo[N] = 0;
-   
-   for (int j = N-1; j >= 0; --j) {
-      ctx.memo[j] = (isBase(ctx.Y[j]) ? INSERTION_COST : 0) + ctx.memo[j+1];
+   ctx.cmemo = malloc(sizeof(long[K]));
+
+   if (ctx.cmemo == NULL) {
+      perror("EditDistance_NW_CA: malloc of ctx.cmemo");
+      exit(EXIT_FAILURE);
    }
 
-   int K = Z / 64;
+   long tmp, tmp2;
 
-   for (int I = M-1; I >= 0; I -= K) {
-      int i_end = (0 >= I - K) ? 0 : I - K;
+   for (int I = M; I >= 0; I -= K) {
+      int i_end = (I-K+1 < 0) ? 0 : I-K+1;
 
-      for (int J = N-1; J >= 0; J -= K) {
-         int j_end = (0 >= J - K) ? 0: J - K;
+      for (int J = N; J >= 0; J -= K) {
+         int j_end = (J-K+1 < 0) ? 0 : J-K+1;
+         long tmp3 = (I == M) ? NOT_YET_COMPUTED : ctx.rmemo[j_end];
 
          for (int i = I; i >= i_end; --i) {
-            long tmp = ctx.memo[N];
-            ctx.memo[N] = (isBase(ctx.X[i]) ? INSERTION_COST : 0) + tmp;
+            int k = i - i_end;
 
             for (int j = J; j >= j_end; --j) {
-               if (!isBase(ctx.X[i])) {
+               if (i == M) {
+                  if (j == N) {
+                     ctx.rmemo[j] = 0;
+                  } else {
+                     ctx.rmemo[j] = (isBase(ctx.Y[j]) ? INSERTION_COST : 0) + ((j == J) ? ctx.cmemo[k] : ctx.rmemo[j+1]);
+                  }
+               } else if (j == N) {
+                  tmp = ctx.rmemo[j];
+                  ctx.rmemo[j] = (isBase(ctx.X[i]) ? INSERTION_COST : 0) + tmp;
+               } else if (!isBase(ctx.X[i])) {
                   ManageBaseError(ctx.X[i]);
-                  tmp = ctx.memo[j];
+                  tmp = ctx.rmemo[j];
                } else if (!isBase(ctx.Y[j])) {
                   ManageBaseError(ctx.Y[j]);
-                  tmp = ctx.memo[j];
-                  ctx.memo[j] = ctx.memo[j+1];
+                  tmp = ctx.rmemo[j];
+                  ctx.rmemo[j] = (j == J) ? ctx.cmemo[k] : ctx.rmemo[j+1];
                } else {
-                  long cost1 = sigma(ctx.X[i], ctx.Y[j]) + tmp;
-                  long cost2 = INSERTION_COST + ctx.memo[j];
-                  long cost3 = INSERTION_COST + ctx.memo[j+1];
-                  tmp = ctx.memo[j];
-                  ctx.memo[j] = MIN(cost1, cost2, cost3);
+                  long cost1 = sigma(ctx.X[i], ctx.Y[j]) + ((j == J) ? tmp2 : tmp);
+                  long cost2 = INSERTION_COST + ctx.rmemo[j];
+                  long cost3 = INSERTION_COST + ((j == J) ? ctx.cmemo[k] : ctx.rmemo[j+1]);
+                  tmp = ctx.rmemo[j];
+                  ctx.rmemo[j] = MIN(cost1, cost2, cost3);
                }
             }
+
+            tmp2 = ctx.cmemo[k];
+            ctx.cmemo[k] = ctx.rmemo[j_end];
          }
+
+         tmp2 = tmp3;
       }
    }
 
-   long res = ctx.memo[0];
-   free(ctx.memo);
+   long res = ctx.rmemo[0];
+   free(ctx.rmemo);
+   free(ctx.cmemo);
 
    return res;
 }
 
 void blocking(struct NW_MemoContextCO *c, int i_start, int i_stop)
 {
-   if (i_start - i_stop < S) {
+   if (i_start - i_stop <= S) {
       for (int i = i_start; i >= i_stop; --i) {
          int k = i - i_stop;
 
          if (i == c->M) {
             c->cmemo[k] = 0;
          } else {
-            c->cmemo[k] = (isBase(c->X[i]) ? INSERTION_COST : 0) + ((i == i_start) ? c->rmemo[c->N] : c->cmemo[k + 1]);
+            c->cmemo[k] = (isBase(c->X[i]) ? INSERTION_COST : 0) + ((i == i_start) ? c->rmemo[c->N] : c->cmemo[k+1]);
          }
       }
 
@@ -318,18 +349,18 @@ void blocking(struct NW_MemoContextCO *c, int i_start, int i_stop)
 
             if (i == c->M) {
                c->rmemo[j+1] = c->cmemo[k];
-               c->cmemo[k] = (isBase(c->Y[j]) ? INSERTION_COST : 0) + c->cmemo[k + 1];
+               c->cmemo[k] = (isBase(c->Y[j]) ? INSERTION_COST : 0) + c->cmemo[k+1];
             } else {
                if (!isBase(c->X[i])) {
                   ManageBaseError(c->X[i]);
                   c->rmemo[j+1] = c->cmemo[k];
-                  c->cmemo[k] = ((i == i_start) ? c->rmemo[j] : c->cmemo[k + 1]);
+                  c->cmemo[k] = ((i == i_start) ? c->rmemo[j] : c->cmemo[k+1]);
                } else if (!isBase(c->Y[j])) {
                   ManageBaseError(c->Y[j]);
                   c->rmemo[j+1] = c->cmemo[k];
                } else {
                   long cost1 = sigma(c->X[i], c->Y[j]) + c->rmemo[j+1];
-                  long cost2 = INSERTION_COST + ((i == i_start) ? c->rmemo[j] : c->cmemo[k + 1]);
+                  long cost2 = INSERTION_COST + ((i == i_start) ? c->rmemo[j] : c->cmemo[k+1]);
                   long cost3 = INSERTION_COST + c->cmemo[k];
                   c->rmemo[j+1] = c->cmemo[k];
                   c->cmemo[k] = MIN(cost1, cost2, cost3);
@@ -369,14 +400,14 @@ long EditDistance_NW_CO(char *A, size_t lengthA, char *B, size_t lengthB)
    ctx.rmemo = malloc(sizeof(long[N+1]));
 
    if (ctx.rmemo == NULL) {
-      perror("EditDistance_NW_Iter: malloc of ctx.rmemo");
+      perror("EditDistance_NW_CO: malloc of ctx.rmemo");
       exit(EXIT_FAILURE);
    }
 
    ctx.cmemo = malloc(sizeof(long[S]));
 
    if (ctx.cmemo == NULL) {
-      perror("EditDistance_NW_Iter: malloc of ctx.cmemo");
+      perror("EditDistance_NW_CO: malloc of ctx.cmemo");
       exit(EXIT_FAILURE);
    }
 
