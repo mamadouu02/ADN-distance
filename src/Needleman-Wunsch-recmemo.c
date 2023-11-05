@@ -16,7 +16,6 @@
 #include <stdlib.h> 
 #include <string.h> /* for strchr */
 // #include <ctype.h> /* for toupper */
-#include <math.h>
 
 #include "characters_to_base.h" /* mapping from char to base */
 
@@ -261,7 +260,7 @@ long EditDistance_NW_CA(char *A, size_t lengthA, char *B, size_t lengthB, int Z)
 
    size_t M = ctx.M;
    size_t N = ctx.N;
-   int K = (int)sqrt(Z);
+   int K = Z / 64;
 
    ctx.rmemo = malloc(sizeof(long[N+1]));
 
