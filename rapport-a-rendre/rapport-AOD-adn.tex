@@ -97,8 +97,9 @@ Analyse du coût théorique de ce  programme en fonction de $N$ et $M$  en notat
 
 \section{Réglage du seuil d'arrêt récursif du programme cache oblivious  (1 point)} 
 Comment faites-vous sur une machine donnée pour choisir ce seuil d'arrêt? Quelle valeur avez vous choisi pour les
-PC de l'Ensimag? (2 à 3 lignes) 
+PC de l'Ensimag? (2 à 3 lignes)
 
+On a raisonné en dichotomie trouver le meilleur seuil,sur plusuieurs test on note les valeur donné par valgrind en Iref,Drefs,D1miss et le temps mis par l'algorithme et si on observe un amélioration des 2 on conserve la valeur.On a donc choisi 125.
 %%%%%%%%%%%%%%%%%%%
 \section{Expérimentation (7 points)}
 
@@ -195,7 +196,8 @@ ces mesures expérimentales sont elles en accord avec les coûts analysés théo
 Quel algorithme se comporte le mieux avec valgrind et 
 les paramètres proposés, pourquoi ?
 
-
+Le produit de N*M donne un ordre de grandeur de 1E6 et L=64 on a NM/L $\approx$ 15000 pour la première ligne seul CA et CO respèctent l'ordre de grandeur.Aussi les défaults de cache qui sont bien plus faibles pour CA et CO que iter et rec.
+L'algorithme qui se comporte le mieux avec valgrind pour les petites valeurs est CO mais CA produit moins de défault de cache pour les plus grandes valeurs.Les blocs de calcul de CA et CO ont été calculé de telles sorte à tenir dans le cache complètement et reduire le nombre de défault de cache. 
 \subsection{(3 points) Sans valgrind, par exécution de la commande :}
 {\tt \begin{tabular}{llll}
 distanceEdition & GCA\_024498555.1\_ASM2449855v1\_genomic.fna & 77328790 & M \\
@@ -273,6 +275,8 @@ ces mesures expérimentales sont elles en accord avec les coûts analysés thér
 Quel algorithme se comporte le mieux avec valgrind et 
 les paramètres proposés, pourquoi ?
 
+L'algorithme qui se comporte le mieux est CA qui est meilleur en temps, énergie. Plusieurs raison peuvent justifier cela : L'itératif est plus lent due à son nombre de défault de cache très grand devant celui de CA et pour CO qui a les mêmes défault de cache c'est peut-être le nombre d'appel récursive.
+
 \subsection{(1 point) Extrapolation: estimation de la durée et de l'énergie pour la commande :}
 {\tt \begin{tabular}{llll}
 distanceEdition & GCA\_024498555.1\_ASM2449855v1\_genomic.fna & 77328790 & 20236404  \\
@@ -280,15 +284,16 @@ distanceEdition & GCA\_024498555.1\_ASM2449855v1\_genomic.fna & 77328790 & 20236
 \end{tabular}
 }
 
-A partir des résultats précédents, le programme {\em préciser itératif/cache aware/ cache oblivious} est
-le plus performant pour la commande ci dessus (test 5); les ressources pour l'exécution seraient environ:
-{\em (préciser la méthode de calcul utilisée)} 
+A partir des résultats précédents, le programme cache-aware est
+le plus performant pour la commande ci dessus (test 5); les ressources pour l'exécution seraient environ: on effectue une régression polynomiale avec les valeurs précédentes avec $N=20000000$ et $M=20000000$ ($R^2=0.99$)
 \begin{itemize}
-\item Temps cpu (en s) : ...
-\item Energie  (en kWh) : ... .
+\item Temps cpu (en s) : 3716000
+\item Energie  (en kWh) : 12.58.
 \end{itemize}
 Question subsidiaire: comment feriez-vous pour avoir un programme s'exécutant en moins de 1 minute ? 
-{\em donner le principe en moins d'une ligne, même 1 mot précis suffit! }
+{\em donner le principe en moins d'une ligne, même 1 mot précis suffit! } 
+
+Parallélisme
 
 
 \end{document}
