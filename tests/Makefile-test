@@ -5,11 +5,12 @@ DIRBENCH=/matieres/4MMAOD6/TP-AOD-ADN-Benchmark
 
 all: .test1.expected .test2.expected .test3.expected .test4.expected .test5.expected 
 
-all-valgrind: clean valgrind4perf1000.output valgrind4perf2000.output valgrind4perf10000.output
+all-valgrind: valgrind4perf1000.output valgrind4perf2000.output valgrind4perf10000.output clean
 
 clean: 
-	rm -rf valgrind4perf*
+	rm -rf cachegrind*
 
+.PHONY: all-valgrind
 
 #######################################
 ### Correction test 

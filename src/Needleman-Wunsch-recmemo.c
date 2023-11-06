@@ -30,7 +30,7 @@
 /** \def S
  * \brief threshold for cache-oblivious Needleman-Wunsch algorithm.
  */
-#define S 16
+#define S 125
 
 /** \struct NW_MemoContext
  * \brief data for memoization of recursive Needleman-Wunsch algorithm 

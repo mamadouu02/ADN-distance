@@ -1,8 +1,9 @@
 \documentclass[10pt,a4paper]{article}
 
-\usepackage[latin1]{inputenc}
-%\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+% \usepackage[T1]{fontenc}
 \usepackage{enumerate}
+\usepackage{amssymb}
 
 %%%% POUR FAIRE TENIR SUR UNE PAGE RECTO-VERSO.....
 \textwidth 18.5cm
@@ -23,76 +24,91 @@
 
 \thispagestyle{empty}
 
-\noindent\centerline{\bf\large Questionnaire  TP AOD 2023-2024 ‡ complÈter et rendre sur teide  } \\
-BinÙme 
-(NOM\textsubscript{1} PrÈnom\textsubscript{1} --
- NOM\textsubscript{2} PrÈnom\textsubscript{2})
-\,: \dotfill
+\noindent\centerline{\bf\large Questionnaire  TP AOD 2023-2024 √† compl√©ter et rendre sur teide  } \\
+Bin√¥me 
+(NOM\textsubscript{1} Pr√©nom\textsubscript{1} --
+ NOM\textsubscript{2} Pr√©nom\textsubscript{2})
+\,: BOUDAHMANE Ahmed -- THIONGANE Mamadou
 
-\section{PrÈambule 1 point}.
-Le programme rÈcursif avec mÈmoisation fourni alloue une mÈmoire de taille $N.M$.
-Il gÈnËre une erreur d'exÈcution sur le test 5 (c-dessous) . Pourquoi ? \\
-RÈponse:  A COMPLETER 
+\section{Pr√©ambule (1 point)}
+Le programme r√©cursif avec m√©moisation alloue une m√©moire de taille $N.M$.
+Il g√©n√®re une erreur d'ex√©cution sur le test 5 (ci-dessous). Pourquoi ? \\
+R√©ponse: Les s√©quences √©tant tr√®s longues sur le test 5, la m√©moire demand√©e par le programme r√©cursif pour l'allocation d'une m√©moire de taille $N \times M$ et pour la pile d'appels r√©cursifs est trop importante.
 \begin{verbatim}
 distanceEdition-recmemo    GCA_024498555.1_ASM2449855v1_genomic.fna 77328790 20236404   \
                            GCF_000001735.4_TAIR10.1_genomic.fna 30808129 19944517 
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%
-{\noindent\bf{Important}.} Dans toute la suite, on demande des programmes qui allouent un espace mÈmoire $O(N+M)$.
+{\noindent\bf{Important}.} Dans toute la suite, on demande des programmes qui allouent un espace m√©moire $O(N+M)$.
 
-\section{Programme itÈratif en espace mÈmoire $O(N+M)$ (5 points)}
-{\em Expliquer trËs briËvement (2 ‡ 5 lignes max) le principe de votre code, la mÈmoire utilisÈe, le sens de parcours des tableaux.}
-\vspace*{1.0cm}
+\section{Programme it√©ratif en espace m√©moire $O(N+M)$ (5 points)}
+{\em Expliquer tr√®s bri√®vement (2 √† 5 lignes max) le principe de votre code, la m√©moire utilis√©e, le sens de parcours des tableaux.}
 
-Analyse du co˚t thÈorique de ce  programme en fonction de $N$ et $M$  en notation $\Theta(...)$ 
+\medskip
+
+√Ä partir de $\phi(M,N)$, on calcule $\left( \phi(i,j) \right)_{0 \leqslant i \leqslant M, 0 \leqslant j \leqslant N}$ it√©rativement par lignes. Le sens de parcours s'effectue de droite √† gauche en remontant par lignes. Les $\phi(i,j)$ sont stock√©s par lignes en utilisant un tableau de taille $N+1$.
+
+\medskip
+
+Analyse du co√ªt th√©orique de ce  programme en fonction de $N$ et $M$  en notation $\Theta(...)$ 
 \begin{enumerate}
-  \item place mÈmoire allouÈe (ne pas compter les 2 sÈquences $X$ et $Y$ en mÈmoire via {\tt mmap}) : 
-  \item travail (nombre d'opÈrations) : 
-  \item nombre de dÈfauts de cache obligatoires (sur modËle CO, y compris sur $X$ et $Y$):
-  \item nombre de dÈfauts de cache si $Z \ll \min(N,M)$ : 
+  \item place m√©moire allou√©e (ne pas compter les 2 s√©quences $X$ et $Y$ en m√©moire via {\tt mmap}) : $\Theta(N)$
+  \item travail (nombre d'op√©rations) : $\Theta(NM)$
+  \item nombre de d√©fauts de cache obligatoires (sur mod√®le CO, y compris sur $X$ et $Y$): $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{M}{L} \right)$, $\Theta \left( \frac{N}{L} \right)$
+  \item nombre de d√©fauts de cache si $Z \ll \min(N,M)$ : $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{M}{L} \right)$, $\Theta \left( \frac{NM}{L} \right)$
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%
 \section{Programme cache aware  (3 points)}
-{\em Expliquer trËs briËvement (2 ‡ 5 lignes max) le principe de votre code, la mÈmoire utilisÈe, le sens de parcours des tableaux.}
-\vspace*{1.0cm}
+{\em Expliquer tr√®s bri√®vement (2 √† 5 lignes max) le principe de votre code, la m√©moire utilis√©e, le sens de parcours des tableaux.}
 
-Analyse du co˚t thÈorique de ce  programme en fonction de $N$ et $M$  en notation $\Theta(...)$ )
+\medskip
+
+√Ä partir de $\phi(M,N)$, on calcule $\left( \phi(i,j) \right)_{0 \leqslant i \leqslant M, 0 \leqslant j \leqslant N}$ it√©rativement par blocs de taille $K \times K$. Le sens de parcours s'effectue de droite √† gauche en remontant par blocs, chaque bloc √©tant parcouru par lignes. Les $\phi(i,j)$ sont stock√©s par lignes en utilisant un tableau de taille $N+1$ et les $\phi(i,j)$ d'un bloc sont stock√©s par colonnes en utilisant un tableau de taille $K = \sqrt{Z}$.
+
+\medskip
+
+Analyse du co√ªt th√©orique de ce programme en fonction de $N$ et $M$  en notation $\Theta(...)$ )
 \begin{enumerate}
-  \item place mÈmoire (ne pas compter les 2 sÈquences initiales $X$ et $Y$ en mÈmoire via {\tt mmap}) : 
-  \item travail (nombre d'opÈrations) : 
-  \item nombre de dÈfauts de cache obligatoires (sur modËle CO, y compris sur $X$ et $Y$):
-  \item nombre de dÈfauts de cache si $Z \ll \min(N,M)$ : 
+  \item place m√©moire allou√©e (ne pas compter les 2 s√©quences $X$ et $Y$ en m√©moire via {\tt mmap}) : $\Theta(N + \sqrt{Z})$
+  \item travail (nombre d'op√©rations) : $\Theta(NM)$
+  \item nombre de d√©fauts de cache obligatoires (sur mod√®le CO, y compris sur $X$ et $Y$): $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$, $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$
+  \item nombre de d√©fauts de cache si $Z \ll \min(N,M)$ : $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$, $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%
 \section{Programme cache oblivious  (3 points)}
-{\em Expliquer trËs briËvement (2 ‡ 5 lignes max) le principe de votre code, la mÈmoire utilisÈe, le sens de parcours des tableaux.}
-\vspace*{1.0cm}
+{\em Expliquer tr√®s bri√®vement (2 √† 5 lignes max) le principe de votre code, la m√©moire utilis√©e, le sens de parcours des tableaux.}
 
-Analyse du co˚t thÈorique de ce  programme en fonction de $N$ et $M$  en notation $\Theta(...)$ )
+\medskip
+
+√Ä partir de $\phi(M,N)$, on calcule $\left( \phi(i,j) \right)_{0 \leqslant i \leqslant M, 0 \leqslant j \leqslant N}$ r√©cursivement par blocs de taille $S \times N$, o√π $S$ est le seuil de r√©cursivit√© choisi de sorte √† ce que toutes les valeurs de $X$ tiennent en cache en un bloc. Le sens de parcours s'effectue en remontant par blocs, chaque bloc √©tant parcouru en remontant par colonnes, de droite √† gauche. Les $\phi(i,j)$ sont stock√©s par lignes en utilisant un tableau de taille $N+1$ et les $\phi(i,j)$ d'un bloc sont stock√©s par colonnes en utilisant un tableau de taille $S$.
+
+\medskip
+
+Analyse du co√ªt th√©orique de ce  programme en fonction de $N$ et $M$  en notation $\Theta(...)$ )
 \begin{enumerate}
-  \item place mÈmoire (ne pas compter les 2 sÈquences initiales $X$ et $Y$ en mÈmoire via {\tt mmap}) : 
-  \item travail (nombre d'opÈrations) : 
-  \item nombre de dÈfauts de cache obligatoires (sur modËle CO, y compris sur $X$ et $Y$):
-  \item nombre de dÈfauts de cache si $Z \ll \min(N,M)$ : 
+  \item place m√©moire allou√©e (ne pas compter les 2 s√©quences $X$ et $Y$ en m√©moire via {\tt mmap}) : $\Theta(N + S)$
+  \item travail (nombre d'op√©rations) : $\Theta(NM)$
+  \item nombre de d√©fauts de cache obligatoires (sur mod√®le CO, y compris sur $X$ et $Y$): $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{M}{L} \right)$, $\Theta \left( \frac{MN}{SL} \right)$
+  \item nombre de d√©fauts de cache si $Z \ll \min(N,M)$ : $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{MN}{L} \right)$, $\Theta \left( \frac{NM}{SL} \right)$
 \end{enumerate}
 
-\section{RÈglage du seuil d'arrÍt rÈcursif du programme cache oblivious  (1 point)} 
-Comment faites-vous sur une machine donnÈe pour choisir ce seuil d'arrÍt? Quelle valeur avez vous choisi pour les
-PC de l'Ensimag? (2 ‡ 3 lignes) 
+\section{R√©glage du seuil d'arr√™t r√©cursif du programme cache oblivious  (1 point)} 
+Comment faites-vous sur une machine donn√©e pour choisir ce seuil d'arr√™t? Quelle valeur avez vous choisi pour les
+PC de l'Ensimag? (2 √† 3 lignes) 
 
 %%%%%%%%%%%%%%%%%%%
-\section{ExpÈrimentation (7 points)}
+\section{Exp√©rimentation (7 points)}
 
-Description de la machine d'expÈrimentation:  \\
-Processeur: A PRECISER  --
-MÈmoire: A PRECISER --
-SystËme: A PRECISER 
+Description de la machine d'exp√©rimentation:  \\
+Processeur: Intel Core‚Ñ¢ i5-7500 CPU @ 3.40GHz √ó 4 --
+M√©moire: 32.0 GiB --
+Syst√®me: Dell Inc. Precision Tower 3420
 
 \subsection{(3 points) Avec {\tt 
-	valgrind --tool =cachegrind --D1=4096,4,64
+	valgrind --tool=cachegrind --D1=4096,4,64
 }} 
 \begin{verbatim}
      distanceEdition ba52_recent_omicron.fasta 153 N wuhan_hu_1.fasta 116 M 
@@ -100,99 +116,93 @@ SystËme: A PRECISER
 en prenant pour $N$ et $M$ les valeurs dans le tableau ci-dessous.
 
 
-Les paramËtres du cache LL de second niveau est : ...
-{\em mettre ici les paramËtres: soit ceux indiquÈs ligne 3
-du fichier cachegrind.out.(pid) gÈnÈrÈ par valgrind: soit ceux par dÈfaut,
-soit ceux que vous avez spÈcifiÈs ‡ la main
+Les param√®tres du cache LL de second niveau est : ...
+{\em mettre ici les param√®tres: soit ceux indiqu√©s ligne 3
+du fichier cachegrind.out.(pid) g√©n√©r√© par valgrind: soit ceux par d√©faut,
+soit ceux que vous avez sp√©cifi√©s √† la main
 \footnote{par exemple:
 {\tt valgrind --tool=cachegrind --D1=4096,4,64 --LL=65536,16,256  ... }
-mais ce n'est pas demandÈ car cela allonge le temps de simulation. } 
+mais ce n'est pas demand√© car cela allonge le temps de simulation. } 
  pour LL. }
 
-{\em Le tableau ci-dessous est un exemple,  complÈtÈ avec vos rÈsultats et 
-ensuite analysÈ.}
+{\em Le tableau ci-dessous est un exemple,  compl√©t√© avec vos r√©sultats et 
+ensuite analys√©.}
 \\
 {\footnotesize
 \begin{tabular}{|r|r||r|r|r||r|r|r||r|r|r||r|r|r||}
 \hline
  \multicolumn{2}{|c||}{ } 
-& \multicolumn{3}{c||}{rÈcursif mÈmo}
-& \multicolumn{3}{c||}{itÈratif}
+& \multicolumn{3}{c||}{r√©cursif m√©mo}
+& \multicolumn{3}{c||}{it√©ratif}
 & \multicolumn{3}{c||}{cache aware}
 & \multicolumn{3}{c||}{cache oblivious}
 \\ \hline
 N & M 
 & \#Irefs & \#Drefs & \#D1miss % recursif memoisation
-& \#Irefs & \#Drefs & \#D1miss % itÈratif
+& \#Irefs & \#Drefs & \#D1miss % it√©ratif
 & \#Irefs & \#Drefs & \#D1miss % cache aware
 & \#Irefs & \#Drefs & \#D1miss % cache oblivious
 \\ \hline
 \hline
 1000 & 1000 
-&  &  &   % recursif memoisation
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
-\\ \hline
-1000 & 1000 
-&  &  &   % recursif memoisation
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
+& 217,200,815 & 122,122,238 & 4,925,369  % recursif memoisation
+& 103,321,402 & 42,541,770 & 148,791  % it√©ratif
+& 118,750,875 & 51,792,350 & 7,362  % cache aware
+& 139,073,200 & 66,379,265 & 6,525  % cache oblivious
 \\ \hline
 2000 & 1000 
-&  &  &   % recursif memoisation
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
+& 433,378,209 & 243,401,470 & 11,022,819  % recursif memoisation
+& 206,058,363 & 85,001,754 & 292,606  % it√©ratif
+& 236,903,406 & 103,495,478 & 9,843  % cache aware
+& 277,535,016 & 132,659,677 & 8,268  % cache oblivious
 \\ \hline
 4000 & 1000 
-&  &  &   % recursif memoisation
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
+& 867,150,307 & 487,365,726 & 23,222,782  % recursif memoisation
+& 411,233,568 & 169,921,634 & 580,249  % it√©ratif
+& 472,909,239 & 206,901,349 & 14,681  % cache aware
+& 554,163,276 & 265,221,667 & 13,072  % cache oblivious
 \\ \hline
 2000 & 2000 
-&  &  &   % recursif memoisation
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
+& 867,141,905 & 487,888,421 & 19,896,557  % recursif memoisation
+& 412,481,161 & 169,899,591 & 574,302  % it√©ratif
+& 474,160,260 & 206,882,587 & 14,779  % cache aware
+& 555,413,924 & 265,201,830 & 11,643  % cache oblivious
 \\ \hline
 4000 & 4000 
-&  &  &   % recursif memoisation
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
+& 3,465,864,618 & 1,950,548,616 & 80,000,438  % recursif memoisation
+& 1,648,944,597 & 679,272,871 & 2,262,913  % it√©ratif
+& 1,895,444,821 & 827,084,387 & 52,392  % cache aware
+& 2,220,523,172 & 1,060,384,536 & 39,438  % cache oblivious
 \\ \hline
 6000 & 6000 
-&  &  &   % recursif memoisation
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
+& 7,796,325,080 & 4,387,984,427 & 180,346,527  % recursif memoisation
+& 3,709,599,857 & 1,528,189,672 & 5,076,466  % it√©ratif
+& 4,264,063,812 & 1,860,675,440 & 92,168  % cache aware
+& 4,991,734,938 & 2,386,191,401 & 89,535  % cache oblivious
 \\ \hline
 8000 & 8000 
-&  &  &   % recursif memoisation
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
+& 13,857,954,627 & 7,799,947,998 & 321,302,450  % recursif memoisation
+& 6,594,444,508 & 2,716,649,992 & 9,019,928  % it√©ratif
+& 7,580,302,267 & 3,307,820,288 & 160,715  % cache aware
+& 8,880,432,681 & 4,240,893,529 & 174,261 % cache oblivious
 \\ \hline
 \hline
 \end{tabular}
 }
 
-\paragraph{Important: analyse expÈrimentale:} 
-ces mesures expÈrimentales sont elles en accord avec les co˚ts analysÈs thÈroiquement (justifier)  ? 
+\paragraph{Important: analyse exp√©rimentale:} 
+ces mesures exp√©rimentales sont elles en accord avec les co√ªts analys√©s th√©oriquement (justifier)  ? 
 Quel algorithme se comporte le mieux avec valgrind et 
-les paramËtres proposÈs, pourquoi ?
+les param√®tres propos√©s, pourquoi ?
 
 
-\subsection{(3 points) Sans valgrind, par exÈcution de la commande :}
+\subsection{(3 points) Sans valgrind, par ex√©cution de la commande :}
 {\tt \begin{tabular}{llll}
 distanceEdition & GCA\_024498555.1\_ASM2449855v1\_genomic.fna & 77328790 & M \\
                 & GCF\_000001735.4\_TAIR10.1\_genomic.fna     & 30808129 & N
 \end{tabular}}
 
-On mesure le temps ÈcoulÈ, le temps CPU et l'Ènergie consommÈe avec : {\em  [prÈsicer ici comment vous avez fait la mesure:
+On mesure le temps √©coul√©, le temps CPU et l'√©nergie consomm√©e avec : {\em  [pr√©sicer ici comment vous avez fait la mesure:
 {\tt time} 
 ou {\tt /usr/bin/time}
 ou {\tt getimeofday}
@@ -202,83 +212,83 @@ ou {\tt getrusage}
 %     cf {\tt /matieres/4MMAOD6/2023-10-TP-AOD-ADN-Docs-fournis/tp-ADN-distance/srcperf/0-LisezMoi}
 % }
 ou... \\
-L'Ènergie consommÈe sur le processeur peut Ítre estimÈe en regardant le compteur RAPL d'Ènergie (en microJoule)
-pour chaque core avant et aprËs l'exÈcution et en faisant la diffÈrence.
+L'√©nergie consomm√©e sur le processeur peut √™tre estim√©e en regardant le compteur RAPL d'√©nergie (en microJoule)
+pour chaque core avant et apr√®s l'ex√©cution et en faisant la diff√©rence.
 Le compteur du core $K$ est dans le fichier 
 \verb+ /sys/class/powercap/intel-rapl/intel-rapl:K/energy_uj + .\\
 Par exemple, pour le c{\oe}ur 0: 
 \verb+ /sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj +
 % Les fonctions fournies 
-% {\tt perfstart/perfstop\_and\_display} dans le rÈpertoire
+% {\tt perfstart/perfstop\_and\_display} dans le r√©pertoire
 % {\tt /matieres/4MMAOD6/2022-10-TP-AOD-ADN-Docs-fournis/tp-ADN-distance/srcperf} 
-% font ces mesures de temps cpu, ecoulÈ et Ènergie.
+% font ces mesures de temps cpu, ecoul√© et √©nergie.
 % }
 
-Nota bene: pour avoir un rÈsultat fiable/reproductible (si variailitÈ), 
-il est prÈfÈrable de faire chaque mesure 5 fois et de reporter l'intervalle
+Nota bene: pour avoir un r√©sultat fiable/reproductible (si variailit√©), 
+il est pr√©f√©rable de faire chaque mesure 5 fois et de reporter l'intervalle
 de confiance [min, moyenne, max]. 
 
 \begin{tabular}{|r|r||r|r|r||r|r|r||r|r|r||}
 \hline
  \multicolumn{2}{|c||}{ } 
-& \multicolumn{3}{c||}{itÈratif}
+& \multicolumn{3}{c||}{it√©ratif}
 & \multicolumn{3}{c||}{cache aware}
 & \multicolumn{3}{c||}{cache oblivious}
 \\ \hline
 N & M 
-& temps   & temps & energie       % itÈratif
+& temps   & temps & energie       % it√©ratif
 & temps   & temps & energie       % cache aware
 & temps   & temps & energie       % cache oblivious
 \\
 & 
-& cpu     & ÈcoulÈ&               % itÈratif
-& cpu     & ÈcoulÈ&               % cache aware
-& cpu     & ÈcoulÈ&               % cache oblivious
+& cpu     & √©coul√©&               % it√©ratif
+& cpu     & √©coul√©&               % cache aware
+& cpu     & √©coul√©&               % cache oblivious
 \\ \hline
 \hline
 10000 & 10000 
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
+& [, , ] & [, , ] & [, , ]  % it√©ratif
+& [, , ] & [, , ] & [, , ]  % cache aware
+& [, , ] & [, , ] & [, , ]  % cache oblivious
 \\ \hline
 20000 & 20000 
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
+& [, , ] & [, , ] & [, , ]  % it√©ratif
+& [, , ] & [, , ] & [, , ]  % cache aware
+& [, , ] & [, , ] & [, , ]  % cache oblivious
 \\ \hline
 30000 & 30000 
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
+& [, , ] & [, , ] & [, , ]  % it√©ratif
+& [, , ] & [, , ] & [, , ]  % cache aware
+& [, , ] & [, , ] & [, , ]  % cache oblivious
 \\ \hline
 40000 & 40000 
-&  &  &   % itÈratif
-&  &  &   % cache aware
-&  &  &   % cache oblivious
+& [, , ] & [, , ] & [, , ]  % it√©ratif
+& [, , ] & [, , ] & [, , ]  % cache aware
+& [, , ] & [, , ] & [, , ]  % cache oblivious
 \\ \hline
 \hline
 \end{tabular}
-\paragraph{Important: analyse expÈrimentale:} 
-ces mesures expÈrimentales sont elles en accord avec les co˚ts analysÈs thÈroiquement (justifier)  ? 
+\paragraph{Important: analyse exp√©rimentale:} 
+ces mesures exp√©rimentales sont elles en accord avec les co√ªts analys√©s th√©roiquement (justifier)  ? 
 Quel algorithme se comporte le mieux avec valgrind et 
-les paramËtres proposÈs, pourquoi ?
+les param√®tres propos√©s, pourquoi ?
 
-\subsection{(1 point) Extrapolation: estimation de la durÈe et de l'Ènergie pour la commande :}
+\subsection{(1 point) Extrapolation: estimation de la dur√©e et de l'√©nergie pour la commande :}
 {\tt \begin{tabular}{llll}
 distanceEdition & GCA\_024498555.1\_ASM2449855v1\_genomic.fna & 77328790 & 20236404  \\
                 & GCF\_000001735.4\_TAIR10.1\_genomic.fna     & 30808129 & 19944517 
 \end{tabular}
 }
 
-A partir des rÈsultats prÈcÈdents, le programme {\em prÈciser itÈratif/cache aware/ cache oblivious}†est
-le plus performant pour la commande ci dessus (test 5); les ressources pour l'exÈcution seraient environ:
-{\em (prÈciser la mÈthode de calcul utilisÈe)} 
+A partir des r√©sultats pr√©c√©dents, le programme {\em pr√©ciser it√©ratif/cache aware/ cache oblivious}¬†est
+le plus performant pour la commande ci dessus (test 5); les ressources pour l'ex√©cution seraient environ:
+{\em (pr√©ciser la m√©thode de calcul utilis√©e)} 
 \begin{itemize}
 \item Temps cpu (en s) : ...
 \item Energie  (en kWh) : ... .
 \end{itemize}
-Question subsidiaire: comment feriez-vous pour avoir un programme s'exÈcutant en moins de 1 minute ? 
-{\em donner le principe en moins d'une ligne, mÍme 1 mot prÈcis suffit! }
+Question subsidiaire: comment feriez-vous pour avoir un programme s'ex√©cutant en moins de 1 minute ? 
+{\em donner le principe en moins d'une ligne, m√™me 1 mot pr√©cis suffit! }
 
 
 \end{document}
