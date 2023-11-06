@@ -41,7 +41,7 @@ $(BINDIR)/extract-fasta-sequences-size: $(SRCDIR)/extract-fasta-sequences-size.c
 	$(CC) $(OPT) -I$(SRCDIR) -o $(BINDIR)/extract-fasta-sequences-size $(SRCDIR)/extract-fasta-sequences-size.c
 
 clean:
-	rm -rf $(DOCDIR) $(BINDIR)/* $(REPORTDIR)/*.aux $(REPORTDIR)/*.log  $(PDF) $(TESTDIR)/cachegrind*
+	rm -rf $(DOCDIR) $(BINDIR)/* $(REPORTDIR)/*.aux $(REPORTDIR)/*.log  $(PDF)
 
 #$(BINDIR)/distanceEdition: $(CSOURCE)
 #	$(CC) $(CFLAGS)  $^ -o $@ 

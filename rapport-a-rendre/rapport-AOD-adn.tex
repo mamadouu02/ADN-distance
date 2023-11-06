@@ -32,12 +32,16 @@ Binôme
 
 \section{Préambule (1 point)}
 Le programme récursif avec mémoisation alloue une mémoire de taille $N.M$.
-Il génère une erreur d'exécution sur le test 5 (ci-dessous). Pourquoi ? \\
-Réponse: Les séquences étant très longues sur le test 5, la mémoire demandée par le programme récursif pour l'allocation d'une mémoire de taille $N \times M$ et pour la pile d'appels récursifs est trop importante.
+Il génère une erreur d'exécution sur le test 5 (ci-dessous). Pourquoi ?
+
 \begin{verbatim}
 distanceEdition-recmemo    GCA_024498555.1_ASM2449855v1_genomic.fna 77328790 20236404   \
                            GCF_000001735.4_TAIR10.1_genomic.fna 30808129 19944517 
 \end{verbatim}
+
+\noindent Réponse : Les séquences étant très longues sur le test 5, la mémoire demandée par le programme récursif pour l'allocation d'une mémoire de taille $N \times M$ et pour la pile d'appels récursifs est trop importante.
+
+\medskip
 
 %%%%%%%%%%%%%%%%%%%
 {\noindent\bf{Important}.} Dans toute la suite, on demande des programmes qui allouent un espace mémoire $O(N+M)$.
@@ -55,8 +59,8 @@ Analyse du coût théorique de ce  programme en fonction de $N$ et $M$  en notat
 \begin{enumerate}
   \item place mémoire allouée (ne pas compter les 2 séquences $X$ et $Y$ en mémoire via {\tt mmap}) : $\Theta(N)$
   \item travail (nombre d'opérations) : $\Theta(NM)$
-  \item nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{M}{L} \right)$, $\Theta \left( \frac{N}{L} \right)$
-  \item nombre de défauts de cache si $Z \ll \min(N,M)$ : $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{M}{L} \right)$, $\Theta \left( \frac{NM}{L} \right)$
+  \item nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\Theta \left( \frac{NM}{L} \right)$ sur le tableau, $\Theta \left( \frac{M}{L} \right)$ sur $X$ et $\Theta \left( \frac{N}{L} \right)$ sur $Y$
+  \item nombre de défauts de cache si $Z \ll \min(N,M)$ : $\Theta \left( \frac{NM}{L} \right)$ sur le tableau, $\Theta \left( \frac{M}{L} \right)$ sur $X$ et $\Theta \left( \frac{NM}{L} \right)$ sur $Y$
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%
@@ -73,8 +77,8 @@ Analyse du coût théorique de ce programme en fonction de $N$ et $M$  en notati
 \begin{enumerate}
   \item place mémoire allouée (ne pas compter les 2 séquences $X$ et $Y$ en mémoire via {\tt mmap}) : $\Theta(N + \sqrt{Z})$
   \item travail (nombre d'opérations) : $\Theta(NM)$
-  \item nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$, $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$
-  \item nombre de défauts de cache si $Z \ll \min(N,M)$ : $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$, $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$
+  \item nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\Theta \left( \frac{NM}{L} \right)$ sur le tableau, $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$ sur $X$ et $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$ sur $Y$
+  \item nombre de défauts de cache si $Z \ll \min(N,M)$ : $\Theta \left( \frac{NM}{L} \right)$ sur le tableau, $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$ sur $X$ et $\Theta \left( \frac{NM}{\sqrt{Z} L} \right)$ sur $Y$
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%
@@ -83,7 +87,7 @@ Analyse du coût théorique de ce programme en fonction de $N$ et $M$  en notati
 
 \medskip
 
-À partir de $\phi(M,N)$, on calcule $\left( \phi(i,j) \right)_{0 \leqslant i \leqslant M, 0 \leqslant j \leqslant N}$ récursivement par blocs de taille $S \times N$, où $S$ est le seuil de récursivité choisi de sorte à ce que toutes les valeurs de $X$ tiennent en cache en un bloc. Le sens de parcours s'effectue en remontant par blocs, chaque bloc étant parcouru en remontant par colonnes, de droite à gauche. Les $\phi(i,j)$ sont stockés par lignes en utilisant un tableau de taille $N+1$ et les $\phi(i,j)$ d'un bloc sont stockés par colonnes en utilisant un tableau de taille $S$.
+À partir de $\phi(M,N)$, on calcule $\left( \phi(i,j) \right)_{0 \leqslant i \leqslant M, 0 \leqslant j \leqslant N}$ récursivement par blocs de taille $S \times N$, où $S$ est le seuil de récursivité choisi de sorte que les données de $X$ accédées dans un bloc tiennent dans le cache. Le sens de parcours s'effectue en remontant par blocs, chaque bloc étant parcouru en remontant par colonnes, de droite à gauche. Les $\phi(i,j)$ sont stockés par lignes en utilisant un tableau de taille $N+1$ et les $\phi(i,j)$ d'un bloc sont stockés par colonnes en utilisant un tableau de taille $S$.
 
 \medskip
 
@@ -91,20 +95,23 @@ Analyse du coût théorique de ce  programme en fonction de $N$ et $M$  en notat
 \begin{enumerate}
   \item place mémoire allouée (ne pas compter les 2 séquences $X$ et $Y$ en mémoire via {\tt mmap}) : $\Theta(N + S)$
   \item travail (nombre d'opérations) : $\Theta(NM)$
-  \item nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{M}{L} \right)$, $\Theta \left( \frac{MN}{SL} \right)$
-  \item nombre de défauts de cache si $Z \ll \min(N,M)$ : $\Theta \left( \frac{NM}{L} \right)$, $\Theta \left( \frac{MN}{L} \right)$, $\Theta \left( \frac{NM}{SL} \right)$
+  \item nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\Theta \left( \frac{NM}{L} \right)$ sur le tableau, $\Theta \left( \frac{M}{L} \right)$ sur $X$ et $\Theta \left( \frac{MN}{SL} \right)$ sur $Y$
+  \item nombre de défauts de cache si $Z \ll \min(N,M)$ : $\Theta \left( \frac{NM}{L} \right)$ sur le tableau, $\Theta \left( \frac{MN}{L} \right)$ sur $X$ et $\Theta \left( \frac{NM}{SL} \right)$ sur $Y$
 \end{enumerate}
 
 \section{Réglage du seuil d'arrêt récursif du programme cache oblivious  (1 point)} 
 Comment faites-vous sur une machine donnée pour choisir ce seuil d'arrêt? Quelle valeur avez vous choisi pour les
 PC de l'Ensimag? (2 à 3 lignes)
 
-On a raisonné en dichotomie trouver le meilleur seuil,sur plusuieurs test on note les valeur donné par valgrind en Iref,Drefs,D1miss et le temps mis par l'algorithme et si on observe un amélioration des 2 on conserve la valeur.On a donc choisi 125.
+\medskip
+
+On a raisonné par dichotomie pour trouver le meilleur seuil : on relève le nombre de défauts de cache fournies par \texttt{valgrind} ainsi que le temps d'éxecution du programme sur plusieurs tests et si on observe un amélioration des performances entre deux tests on conserve la dernière valeur. On a donc choisi $S=125$.
+
 %%%%%%%%%%%%%%%%%%%
 \section{Expérimentation (7 points)}
 
 Description de la machine d'expérimentation:  \\
-Processeur: Intel Core™ i5-7500 CPU @ 3.40GHz × 4 --
+Processeur: Intel Core i5-7500 CPU @ 3.40GHz × 4 --
 Mémoire: 32.0 GiB --
 Système: Dell Inc. Precision Tower 3420
 
@@ -116,166 +123,231 @@ Système: Dell Inc. Precision Tower 3420
 \end{verbatim}
 en prenant pour $N$ et $M$ les valeurs dans le tableau ci-dessous.
 
+\medskip
 
-Les paramètres du cache LL de second niveau est : ...
-{\em mettre ici les paramètres: soit ceux indiqués ligne 3
-du fichier cachegrind.out.(pid) généré par valgrind: soit ceux par défaut,
-soit ceux que vous avez spécifiés à la main
-\footnote{par exemple:
-{\tt valgrind --tool=cachegrind --D1=4096,4,64 --LL=65536,16,256  ... }
-mais ce n'est pas demandé car cela allonge le temps de simulation. } 
- pour LL. }
+Les paramètres du cache LL de second niveau sont : \texttt{6291456 B, 64 B, 12-way associative}
 
-{\em Le tableau ci-dessous est un exemple,  complété avec vos résultats et 
-ensuite analysé.}
-\\
-{\footnotesize
-\begin{tabular}{|r|r||r|r|r||r|r|r||r|r|r||r|r|r||}
-\hline
- \multicolumn{2}{|c||}{ } 
-& \multicolumn{3}{c||}{récursif mémo}
-& \multicolumn{3}{c||}{itératif}
-& \multicolumn{3}{c||}{cache aware}
-& \multicolumn{3}{c||}{cache oblivious}
-\\ \hline
-N & M 
-& \#Irefs & \#Drefs & \#D1miss % recursif memoisation
-& \#Irefs & \#Drefs & \#D1miss % itératif
-& \#Irefs & \#Drefs & \#D1miss % cache aware
-& \#Irefs & \#Drefs & \#D1miss % cache oblivious
-\\ \hline
-\hline
-1000 & 1000 
-& 217,200,815 & 122,122,238 & 4,925,369  % recursif memoisation
-& 103,321,402 & 42,541,770 & 148,791  % itératif
-& 118,750,875 & 51,792,350 & 7,362  % cache aware
-& 139,073,200 & 66,379,265 & 6,525  % cache oblivious
-\\ \hline
-2000 & 1000 
-& 433,378,209 & 243,401,470 & 11,022,819  % recursif memoisation
-& 206,058,363 & 85,001,754 & 292,606  % itératif
-& 236,903,406 & 103,495,478 & 9,843  % cache aware
-& 277,535,016 & 132,659,677 & 8,268  % cache oblivious
-\\ \hline
-4000 & 1000 
-& 867,150,307 & 487,365,726 & 23,222,782  % recursif memoisation
-& 411,233,568 & 169,921,634 & 580,249  % itératif
-& 472,909,239 & 206,901,349 & 14,681  % cache aware
-& 554,163,276 & 265,221,667 & 13,072  % cache oblivious
-\\ \hline
-2000 & 2000 
-& 867,141,905 & 487,888,421 & 19,896,557  % recursif memoisation
-& 412,481,161 & 169,899,591 & 574,302  % itératif
-& 474,160,260 & 206,882,587 & 14,779  % cache aware
-& 555,413,924 & 265,201,830 & 11,643  % cache oblivious
-\\ \hline
-4000 & 4000 
-& 3,465,864,618 & 1,950,548,616 & 80,000,438  % recursif memoisation
-& 1,648,944,597 & 679,272,871 & 2,262,913  % itératif
-& 1,895,444,821 & 827,084,387 & 52,392  % cache aware
-& 2,220,523,172 & 1,060,384,536 & 39,438  % cache oblivious
-\\ \hline
-6000 & 6000 
-& 7,796,325,080 & 4,387,984,427 & 180,346,527  % recursif memoisation
-& 3,709,599,857 & 1,528,189,672 & 5,076,466  % itératif
-& 4,264,063,812 & 1,860,675,440 & 92,168  % cache aware
-& 4,991,734,938 & 2,386,191,401 & 89,535  % cache oblivious
-\\ \hline
-8000 & 8000 
-& 13,857,954,627 & 7,799,947,998 & 321,302,450  % recursif memoisation
-& 6,594,444,508 & 2,716,649,992 & 9,019,928  % itératif
-& 7,580,302,267 & 3,307,820,288 & 160,715  % cache aware
-& 8,880,432,681 & 4,240,893,529 & 174,261 % cache oblivious
-\\ \hline
-\hline
-\end{tabular}
-}
+\medskip
 
-\paragraph{Important: analyse expérimentale:} 
-ces mesures expérimentales sont elles en accord avec les coûts analysés théoriquement (justifier)  ? 
+\begin{center}
+    {\footnotesize
+    \begin{tabular}{|r|r||r|r|r||r|r|r||}
+    \hline
+     \multicolumn{2}{|c||}{ } 
+    & \multicolumn{3}{c||}{récursif mémo}
+    & \multicolumn{3}{c||}{itératif}
+    \\ \hline
+    $N$ & $M$ 
+    & \#Irefs & \#Drefs & \#D1miss % recursif memoisation
+    & \#Irefs & \#Drefs & \#D1miss % itératif
+    \\ \hline
+    \hline
+    1000 & 1000 
+    & 217,200,815 & 122,122,238 & 4,925,369  % recursif memoisation
+    & 103,321,402 & 42,541,770 & 148,791  % itératif
+    \\ \hline
+    2000 & 1000 
+    & 433,378,209 & 243,401,470 & 11,022,819  % recursif memoisation
+    & 206,058,363 & 85,001,754 & 292,606  % itératif
+    \\ \hline
+    4000 & 1000 
+    & 867,150,307 & 487,365,726 & 23,222,782  % recursif memoisation
+    & 411,233,568 & 169,921,634 & 580,249  % itératif
+    \\ \hline
+    2000 & 2000 
+    & 867,141,905 & 487,888,421 & 19,896,557  % recursif memoisation
+    & 412,481,161 & 169,899,591 & 574,302  % itératif
+    \\ \hline
+    4000 & 4000 
+    & 3,465,864,618 & 1,950,548,616 & 80,000,438  % recursif memoisation
+    & 1,648,944,597 & 679,272,871 & 2,262,913  % itératif
+    \\ \hline
+    6000 & 6000 
+    & 7,796,325,080 & 4,387,984,427 & 180,346,527  % recursif memoisation
+    & 3,709,599,857 & 1,528,189,672 & 5,076,466  % itératif
+    \\ \hline
+    8000 & 8000 
+    & 13,857,954,627 & 7,799,947,998 & 321,302,450  % recursif memoisation
+    & 6,594,444,508 & 2,716,649,992 & 9,019,928  % itératif
+    \\ \hline
+    \hline
+    \end{tabular}
+    }
+
+    \medskip
+    
+    {\footnotesize
+    \begin{tabular}{|r|r||r|r|r||r|r|r||}
+    \hline
+     \multicolumn{2}{|c||}{ } 
+    & \multicolumn{3}{c||}{cache aware}
+    & \multicolumn{3}{c||}{cache oblivious}
+    \\ \hline
+    $N$ & $M$ 
+    & \#Irefs & \#Drefs & \#D1miss % cache aware
+    & \#Irefs & \#Drefs & \#D1miss % cache oblivious
+    \\ \hline
+    \hline
+    1000 & 1000 
+    & 118,750,875 & 51,792,350 & 7,362  % cache aware
+    & 139,073,200 & 66,379,265 & 6,525  % cache oblivious
+    \\ \hline
+    2000 & 1000 
+    & 236,903,406 & 103,495,478 & 9,843  % cache aware
+    & 277,535,016 & 132,659,677 & 8,268  % cache oblivious
+    \\ \hline
+    4000 & 1000 
+    & 472,909,239 & 206,901,349 & 14,681  % cache aware
+    & 554,163,276 & 265,221,667 & 13,072  % cache oblivious
+    \\ \hline
+    2000 & 2000 
+    & 474,160,260 & 206,882,587 & 14,779  % cache aware
+    & 555,413,924 & 265,201,830 & 11,643  % cache oblivious
+    \\ \hline
+    4000 & 4000 
+    & 1,895,444,821 & 827,084,387 & 52,392  % cache aware
+    & 2,220,523,172 & 1,060,384,536 & 39,438  % cache oblivious
+    \\ \hline
+    6000 & 6000 
+    & 4,264,063,812 & 1,860,675,440 & 92,168  % cache aware
+    & 4,991,734,938 & 2,386,191,401 & 89,535  % cache oblivious
+    \\ \hline
+    8000 & 8000 
+    & 7,580,302,267 & 3,307,820,288 & 160,715  % cache aware
+    & 8,880,432,681 & 4,240,893,529 & 174,261 % cache oblivious
+    \\ \hline
+    \hline
+    \end{tabular}
+    }
+\end{center}
+
+\paragraph{Important: analyse expérimentale:}
+ces mesures expérimentales sont-elles en accord avec les coûts analysés théoriquement (justifier) ? 
 Quel algorithme se comporte le mieux avec valgrind et 
 les paramètres proposés, pourquoi ?
 
-Le produit de N*M donne un ordre de grandeur de 1E6 et L=64 on a NM/L $\approx$ 15000 pour la première ligne seul CA et CO respèctent l'ordre de grandeur.Aussi les défaults de cache qui sont bien plus faibles pour CA et CO que iter et rec.
-L'algorithme qui se comporte le mieux avec valgrind pour les petites valeurs est CO mais CA produit moins de défault de cache pour les plus grandes valeurs.Les blocs de calcul de CA et CO ont été calculé de telles sorte à tenir dans le cache complètement et reduire le nombre de défault de cache. 
+\medskip
+
+Pour la première ligne, le produit $N\times M$ est de l'ordre de $10^6$. Comme $L = 64$, la valeur de $\frac{NM}{L}$ est de l'ordre de 15000. Seuls les programmes cache-aware et cache-oblivious respectent cet ordre de grandeur. De plus, les nombres de défauts de cache sont bien plus faibles pour les programmes cache-aware et cache-oblivious que ceux des programmes récursif et itératif. L'algorithme qui se comporte le mieux avec \texttt{valgrind} pour les petites valeurs de $N$ et $M$ est le programme cache-oblivious mais le programme cache-aware génère moins de défauts de cache pour les plus grandes valeurs. En effet, les programmes cache-aware et cache-oblivious utilisent des blocs de sorte que les valeurs accédées dans un bloc tiennent dans le entièrement dans le cache complètement pour ainsi réduire le nombre de défauts de cache.
+
 \subsection{(3 points) Sans valgrind, par exécution de la commande :}
 {\tt \begin{tabular}{llll}
 distanceEdition & GCA\_024498555.1\_ASM2449855v1\_genomic.fna & 77328790 & M \\
                 & GCF\_000001735.4\_TAIR10.1\_genomic.fna     & 30808129 & N
 \end{tabular}}
 
-On mesure le temps écoulé, le temps CPU et l'énergie consommée avec : {\em  [présicer ici comment vous avez fait la mesure:
-{\tt time} 
-ou {\tt /usr/bin/time}
-ou {\tt getimeofday}
-ou {\tt getrusage}
-% ou {\tt perfstart/perfstop\_and\_display}%
-% \footnote{
-%     cf {\tt /matieres/4MMAOD6/2023-10-TP-AOD-ADN-Docs-fournis/tp-ADN-distance/srcperf/0-LisezMoi}
-% }
-ou... \\
+\medskip
+
+On mesure respectivement le temps écoulé, le temps CPU et l'énergie consommée avec {\tt getimeofday}, {\tt getrusage} et {\tt get\_energy\_uj\_counter}.
+
+\medskip
+
 L'énergie consommée sur le processeur peut être estimée en regardant le compteur RAPL d'énergie (en microJoule)
 pour chaque core avant et après l'exécution et en faisant la différence.
 Le compteur du core $K$ est dans le fichier 
-\verb+ /sys/class/powercap/intel-rapl/intel-rapl:K/energy_uj + .\\
-Par exemple, pour le c{\oe}ur 0: 
+\verb+ /sys/class/powercap/intel-rapl/intel-rapl:K/energy_uj +\\
+Par exemple, pour le c{\oe}ur 0:
 \verb+ /sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj +
-% Les fonctions fournies 
-% {\tt perfstart/perfstop\_and\_display} dans le répertoire
-% {\tt /matieres/4MMAOD6/2022-10-TP-AOD-ADN-Docs-fournis/tp-ADN-distance/srcperf} 
-% font ces mesures de temps cpu, ecoulé et énergie.
-% }
 
 Nota bene: pour avoir un résultat fiable/reproductible (si variailité), 
 il est préférable de faire chaque mesure 5 fois et de reporter l'intervalle
 de confiance [min, moyenne, max]. 
 
-\begin{tabular}{|r|r||r|r|r||r|r|r||r|r|r||}
-\hline
- \multicolumn{2}{|c||}{ } 
-& \multicolumn{3}{c||}{itératif}
-& \multicolumn{3}{c||}{cache aware}
-& \multicolumn{3}{c||}{cache oblivious}
-\\ \hline
-N & M 
-& temps   & temps & energie       % itératif
-& temps   & temps & energie       % cache aware
-& temps   & temps & energie       % cache oblivious
-\\
-& 
-& cpu     & écoulé&               % itératif
-& cpu     & écoulé&               % cache aware
-& cpu     & écoulé&               % cache oblivious
-\\ \hline
-\hline
-10000 & 10000 
-& [, , ] & [, , ] & [, , ]  % itératif
-& [, , ] & [, , ] & [, , ]  % cache aware
-& [, , ] & [, , ] & [, , ]  % cache oblivious
-\\ \hline
-20000 & 20000 
-& [, , ] & [, , ] & [, , ]  % itératif
-& [, , ] & [, , ] & [, , ]  % cache aware
-& [, , ] & [, , ] & [, , ]  % cache oblivious
-\\ \hline
-30000 & 30000 
-& [, , ] & [, , ] & [, , ]  % itératif
-& [, , ] & [, , ] & [, , ]  % cache aware
-& [, , ] & [, , ] & [, , ]  % cache oblivious
-\\ \hline
-40000 & 40000 
-& [, , ] & [, , ] & [, , ]  % itératif
-& [, , ] & [, , ] & [, , ]  % cache aware
-& [, , ] & [, , ] & [, , ]  % cache oblivious
-\\ \hline
-\hline
-\end{tabular}
+\begin{center}
+    \begin{tabular}{|r|r||r|r|r||}
+    \hline
+     \multicolumn{2}{|c||}{ } 
+    & \multicolumn{3}{c||}{itératif}
+    \\ \hline
+    $N$ & $M$ 
+    & temps   & temps & energie       % itératif
+    \\
+    & 
+    & cpu     & écoulé&               % itératif
+    \\ \hline
+    \hline
+    10000 & 10000 
+    & [1.26, 1.27, 1.28] & [1.27, 1.27, 1.28] & [5.01E-06, 5.58E-06, 5.99E-06]  % itératif
+    \\ \hline
+    20000 & 20000 
+    & [5.07, 5.15, 5.32] & [5.07, 5.15, 5.33] & [2.01E-05, 2.40E-05, 2.80E-05]  % itératif
+    \\ \hline
+    30000 & 30000 
+    & [11.40, 11.51, 11.61] & [11.41, 11.55, 11.68] & [4.59E-05, 5.16E-05, 5.98E-05]  % itératif
+    \\ \hline
+    40000 & 40000 
+    & [20.41, 20.51, 20.63] & [20.41, 20.52, 20.64] & [8.76E-05, 9.15E-05, 1.00E-04]  % itératif
+    \\ \hline
+    \hline
+    \end{tabular}
+    
+    \medskip
+    
+    \begin{tabular}{|r|r||r|r|r||}
+    \hline
+     \multicolumn{2}{|c||}{ } 
+    & \multicolumn{3}{c||}{cache aware}
+    \\ \hline
+    $N$ & $M$ 
+    & temps   & temps & energie       % cache aware
+    \\
+    & 
+    & cpu     & écoulé&               % cache aware
+    \\ \hline
+    \hline
+    10000 & 10000 
+    & [0.94, 0.95, 0.97] & [0.94, 0.95, 0.97] & [3.81E-06, 4.64E-06, 6.18E-06]  % cache aware
+    \\ \hline
+    20000 & 20000 
+    & [3.77, 3.79, 3.81] & [3.77, 3.79, 3.81] & [1.55E-05, 1.74E-05, 2.39E-05]  % cache aware
+    \\ \hline
+    30000 & 30000 
+    & [8.55, 8.59, 8.61] & [8.55, 8.59, 8.61] & [3.83E-05, 3.91E-05, 4.04E-05]  % cache aware
+    \\ \hline
+    40000 & 40000 
+    & [15.25, 15.27, 15.29] & [15.26, 15.27, 15.29] & [6.86E-05, 6.94E-05, 7.10E-05]  % cache aware
+    \\ \hline
+    \hline
+    \end{tabular}
+    
+    \medskip
+    
+    \begin{tabular}{|r|r||r|r|r||}
+    \hline
+     \multicolumn{2}{|c||}{ } 
+    & \multicolumn{3}{c||}{cache oblivious}
+    \\ \hline
+    $N$ & $M$ 
+    & temps   & temps & energie       % cache oblivious
+    \\
+    & 
+    & cpu     & écoulé&               % cache oblivious
+    \\ \hline
+    \hline
+    10000 & 10000 
+    & [1.27, 1.30, 1.38] & [1.27, 1.31, 1.39] & [5.11E-06, 6.88E-06, 9.99E-06]  % cache oblivious
+    \\ \hline
+    20000 & 20000 
+    & [5.10, 5.17, 5.39] & [5.10, 5.19, 5.40] & [2.08E-05, 2.33E-05, 2.79E-05]  % cache oblivious
+    \\ \hline
+    30000 & 30000 
+    & [11.49, 11.55, 11.67] & [11.50, 11.58, 11.71] & [4.96E-05, 5.28E-05, 5.81E-05]  % cache oblivious
+    \\ \hline
+    40000 & 40000 
+    & [20.52, 20.62, 20.72] & [20.55, 20.67, 20.81] & [9.23E-05, 9.78E-05, 1.06E-04]  % cache oblivious
+    \\ \hline
+    \hline
+    \end{tabular}
+\end{center}
+
 \paragraph{Important: analyse expérimentale:} 
-ces mesures expérimentales sont elles en accord avec les coûts analysés théroiquement (justifier)  ? 
+ces mesures expérimentales sont-elles en accord avec les coûts analysés théoriquement (justifier) ? 
 Quel algorithme se comporte le mieux avec valgrind et 
 les paramètres proposés, pourquoi ?
 
-L'algorithme qui se comporte le mieux est CA qui est meilleur en temps, énergie. Plusieurs raison peuvent justifier cela : L'itératif est plus lent due à son nombre de défault de cache très grand devant celui de CA et pour CO qui a les mêmes défault de cache c'est peut-être le nombre d'appel récursive.
+\medskip
+
+L'algorithme qui se comporte le mieux avec \texttt{valgrind} est le programme cache-aware qui est meilleur en temps et en énergie. Plusieurs raisons peuvent justifier cela : le programme itératif est plus lent à cause de son nombre de défauts de cache très important par rapport au programme cache-aware et pour le programme cache-oblivious, qui génère autant de défauts de cache que le programme cache-aware, est possiblement plus lent que ce dernier à cause d'un grand nombre d'appel récursifs.
 
 \subsection{(1 point) Extrapolation: estimation de la durée et de l'énergie pour la commande :}
 {\tt \begin{tabular}{llll}
@@ -284,16 +356,19 @@ distanceEdition & GCA\_024498555.1\_ASM2449855v1\_genomic.fna & 77328790 & 20236
 \end{tabular}
 }
 
-A partir des résultats précédents, le programme cache-aware est
-le plus performant pour la commande ci dessus (test 5); les ressources pour l'exécution seraient environ: on effectue une régression polynomiale avec les valeurs précédentes avec $N=20000000$ et $M=20000000$ ($R^2=0.99$)
+\medskip
+
+À partir des résultats précédents, le programme cache-aware est le plus performant pour la commande ci-dessus (test 5). Les ressources pour l'exécution, obtenues par régression polynomiale avec $N=M=20000000$ et un coefficient de corrélation $R^2=0.99$, seraient environ: 
 \begin{itemize}
 \item Temps cpu (en s) : 3716000
-\item Energie  (en kWh) : 12.58.
+\item Energie  (en kWh) : 12.58
 \end{itemize}
+
 Question subsidiaire: comment feriez-vous pour avoir un programme s'exécutant en moins de 1 minute ? 
-{\em donner le principe en moins d'une ligne, même 1 mot précis suffit! } 
+{\em Donner le principe en moins d'une ligne, même 1 mot précis suffit! } 
 
-Parallélisme
+\medskip
 
+Par parallélisme.
 
 \end{document}
